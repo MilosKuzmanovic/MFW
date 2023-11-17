@@ -1,4 +1,4 @@
-<ion-content>
+<ion-content *ngIf="trainingDetails">
   <ion-card color="medium">
     <ion-card-content>
       <ion-input [(ngModel)]="trainingDetails.name" placeholder="Name"></ion-input>
@@ -8,13 +8,19 @@
 
       <ion-card color="light" *ngFor="let group of trainingDetails.trainingGroups">
         <ion-card-content>
+          <ion-icon size="large" name="trash-outline" class="clickable" (click)="removeGroup(group)"></ion-icon>
+
           <ion-input [(ngModel)]="group.name" placeholder="Group Name"></ion-input>
           <ion-input [(ngModel)]="group.description" placeholder="Group Description"></ion-input>
+          <ion-input [(ngModel)]="group.order" placeholder="Group Order"></ion-input>
 
           <ion-card color="warning" *ngFor="let exercise of group.exercises">
             <ion-card-content>
+              <ion-icon size="large" name="trash-outline" class="clickable" (click)="removeExercise(exercise)"></ion-icon>
+
               <ion-input [(ngModel)]="exercise.name" placeholder="Exercise Name"></ion-input>
               <ion-input [(ngModel)]="exercise.description" placeholder="Exercise Description"></ion-input>
+              <ion-input [(ngModel)]="exercise.order" placeholder="Exercise Order"></ion-input>
             </ion-card-content>
           </ion-card>
 

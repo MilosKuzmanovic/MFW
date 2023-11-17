@@ -12,6 +12,13 @@ export class TrainingService {
     return storedTrainings ? JSON.parse(storedTrainings) : [];
   }
 
+  getTraining(id: string): Training | undefined {
+    const trainingsJson = localStorage.getItem(this.STORAGE_KEY);
+    const trainings = trainingsJson ? JSON.parse(trainingsJson) as Training[] : [];
+
+    return trainings.find(x => x.id === id);
+  }
+
   removeTraining(training: Training): void {
     
     const storedTrainings = localStorage.getItem(this.STORAGE_KEY) || '[]';

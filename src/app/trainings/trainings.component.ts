@@ -15,7 +15,11 @@ export class TrainingsComponent implements OnInit {
   selectedTraining: Training;
   addingTraining: boolean;
 
-  constructor(private router: Router, private trainingService: TrainingService, private toast: ToastController) {}
+  constructor(
+    private router: Router,
+    private trainingService: TrainingService,
+    private toast: ToastController
+  ) {}
 
   ngOnInit(): void {
     this.loadTrainings();
@@ -37,7 +41,7 @@ export class TrainingsComponent implements OnInit {
       description: '',
       break: 30,
       time: 60,
-      trainingGroups: []
+      trainingGroups: [],
     };
 
     this.addingTraining = true;
@@ -59,7 +63,7 @@ export class TrainingsComponent implements OnInit {
   async onFinish() {
     this.addingTraining = false;
     this.loadTrainings();
-    
+
     const toast = await this.toast.create({
       message: 'Uspesno sacuvan trening!',
       duration: 1500,
@@ -67,5 +71,11 @@ export class TrainingsComponent implements OnInit {
     });
 
     await toast.present();
+  }
+
+  playTraining(training: Training) {
+    this.router.navigate(['play-training'], {
+      queryParams: { trainingId: training.id },
+    });
   }
 }

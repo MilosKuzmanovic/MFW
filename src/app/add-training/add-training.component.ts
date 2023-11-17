@@ -4,6 +4,8 @@ import { TrainingService } from '../services/training.service';
 import { Training } from '../models/Training';
 import { TrainingGroup } from '../models/TrainingGroup';
 import { ToastController } from '@ionic/angular';
+import { Exercise } from '../models/Exercise';
+import { GuidGenerator } from '../services/guid-generator';
 
 @Component({
   selector: 'app-add-training',
@@ -24,6 +26,8 @@ export class AddTrainingComponent {
 
   addGroup(): void {
     this.trainingDetails.trainingGroups.push({
+      id: GuidGenerator.newGuid(),
+      order: 0,
       name: '',
       description: '',
       exercises: [],
@@ -32,6 +36,8 @@ export class AddTrainingComponent {
 
   addExercise(group: TrainingGroup): void {
     group.exercises.push({
+      id: GuidGenerator.newGuid(),
+      order: 0,
       name: '',
       description: ''
     });
@@ -106,5 +112,15 @@ export class AddTrainingComponent {
     }
 
     this.trainingSaved.emit(true);
+  }
+
+  removeGroup(group: TrainingGroup) {
+    this.trainingDetails.trainingGroups = this.trainingDetails.trainingGroups.filter(x => x.id !== group.id);
+  }
+
+  removeExercise(exercise: Exercise) {
+    this.trainingDetails.trainingGroups.forEach(group => {
+      group.exercises = group.exercises.filter(x => x.id !== exercise.id);
+    });
   }
 }

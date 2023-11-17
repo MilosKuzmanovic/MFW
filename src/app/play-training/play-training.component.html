@@ -1,0 +1,5 @@
+<div *ngIf="currentGroup && currentExercise">
+  Current group: {{currentGroup.name}}
+  Current exercise: {{currentExercise.name}}
+  <app-countdown-timer [durationInSeconds]="5" (onFinish)="moveNext()"></app-countdown-timer>
+</div>
