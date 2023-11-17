@@ -1,0 +1,31 @@
+<ion-content>
+  <ion-card color="medium">
+    <ion-card-content>
+      <ion-input [(ngModel)]="trainingDetails.name" placeholder="Name"></ion-input>
+      <ion-input [(ngModel)]="trainingDetails.description" placeholder="Description"></ion-input>
+      <ion-input [(ngModel)]="trainingDetails.time" placeholder="Time"></ion-input>
+      <ion-input [(ngModel)]="trainingDetails.break" placeholder="Break"></ion-input>
+
+      <ion-card color="light" *ngFor="let group of trainingDetails.trainingGroups">
+        <ion-card-content>
+          <ion-input [(ngModel)]="group.name" placeholder="Group Name"></ion-input>
+          <ion-input [(ngModel)]="group.description" placeholder="Group Description"></ion-input>
+
+          <ion-card color="warning" *ngFor="let exercise of group.exercises">
+            <ion-card-content>
+              <ion-input [(ngModel)]="exercise.name" placeholder="Exercise Name"></ion-input>
+              <ion-input [(ngModel)]="exercise.description" placeholder="Exercise Description"></ion-input>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-button (click)="addExercise(group)">Dodaj vežbu</ion-button>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-button (click)="addGroup()">Dodaj grupu</ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-button (click)="getBack.emit(true)">Nazad</ion-button>
+  <ion-button (click)="saveTraining()">Sacuvaj</ion-button>
+</ion-content>

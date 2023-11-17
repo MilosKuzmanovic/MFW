@@ -1,0 +1,20 @@
+<ion-content>
+  <div [hidden]="addingTraining">
+    <ion-card *ngFor="let training of trainings" color="success" class="clickable">
+      <ion-card-header (click)="editTraining(training)">
+        <ion-card-title>{{ training.name }}</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content (click)="editTraining(training)">
+        {{ training.description }}
+      </ion-card-content>
+
+      <ion-icon size="large" name="trash-outline" class="clickable" (click)="removeTraining(training)"></ion-icon>
+    </ion-card>
+
+    <ion-button (click)="addTraining()">Dodaj Trening</ion-button>
+  </div>
+
+  <app-add-training [hidden]="!addingTraining" [isEdit]="!!selectedTraining" [trainingDetails]="selectedTraining" (trainingSaved)="onFinish()" (getBack)="this.addingTraining = false"></app-add-training>
+
+</ion-content>
