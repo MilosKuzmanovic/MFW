@@ -1,5 +1,31 @@
 <div *ngIf="currentGroup && currentExercise">
-  Current group: {{currentGroup.name}}
-  Current exercise: {{currentExercise.name}}
-  <app-countdown-timer [durationInSeconds]="5" (onFinish)="moveNext()"></app-countdown-timer>
+  <div style="display: flex; justify-content: space-between;">
+    <ion-button style="width: 50%" color="danger" (click)="moveBack()">
+      NAZAD
+    </ion-button>
+    <ion-button style="width: 50%" color="success" (click)="moveNext()">
+      NAPRED
+    </ion-button>
+  </div>
+
+  <div *ngIf="isFinishedTraining">
+    <div style="position: absolute; margin-left: 50%; margin-top: 25%; transform: translateX(-50%);">
+      <h1><b>KRAJ</b></h1>
+    </div>
+  </div>
+  <div *ngIf="isBreak && !isFinishedTraining">
+    <div style="position: absolute; margin-left: 50%; margin-top: 15%; transform: translateX(-50%);">
+      <h1><b>PAUZA</b></h1>
+    </div>
+    <app-countdown-timer [durationInSeconds]="currentTime" (onFinish)="moveNext()"></app-countdown-timer>
+  </div>
+  <div *ngIf="!isBreak && !isFinishedTraining">
+    <div style="display: flex; flex-direction: column; text-align: center;">
+      <h3>Grupa: {{currentGroup.name}} ({{groupIndex + 1}})</h3>
+      <h2>Vežba: {{currentExercise.name}} ({{exerciseIndex + 1}})</h2>
+      <h2>Serija: {{seriesIndex}} ({{currentGroup.numberOfSeries}})</h2>
+    </div>
+    <app-countdown-timer [durationInSeconds]="currentTime" (onFinish)="moveNext()"></app-countdown-timer>
+  </div>
+
 </div>

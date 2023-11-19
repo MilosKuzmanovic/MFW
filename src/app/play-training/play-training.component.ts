@@ -4,6 +4,8 @@ import { TrainingService } from '../services/training.service';
 import { Training } from '../models/Training';
 import { TrainingGroup } from '../models/TrainingGroup';
 import { Exercise } from '../models/Exercise';
+import { GuidGenerator } from '../services/guid-generator';
+import { TrainingsComponent } from '../trainings/trainings.component';
 
 @Component({
   selector: 'app-play-training',
@@ -15,6 +17,12 @@ export class PlayTrainingComponent implements OnInit {
   training: Training;
   currentGroup: TrainingGroup;
   currentExercise: Exercise;
+  currentTime: number;
+  isBreak: boolean;
+  exerciseIndex: number = 0;
+  groupIndex: number = 0;
+  seriesIndex: number = 1;
+  isFinishedTraining: boolean;
 
   constructor(
     private route: ActivatedRoute,
@@ -38,32 +46,106 @@ export class PlayTrainingComponent implements OnInit {
 
         this.currentGroup = this.training.trainingGroups[0];
         this.currentExercise = this.training.trainingGroups[0].exercises[0];
+
+        this.isBreak = false;
+        this.currentTime = this.training.time;
       }
     }
   }
 
   moveNext() {
-    let done = false;
-    this.training.trainingGroups.forEach((group, groupIndex) => {
-      if (group.id === this.currentGroup.id) {
-        group.exercises.forEach((exercise, exerciseIndex) => {
-          if (exercise.id == this.currentExercise.id) {
-            if (this.currentGroup.exercises.length == exerciseIndex + 1) {
-              this.currentGroup = this.training.trainingGroups[groupIndex + 1];
-              this.currentExercise = this.currentGroup.exercises[0];
-              done = true;
-              return;
-            } else {
-              this.currentExercise =
-                this.currentGroup.exercises[exerciseIndex + 1];
-              done = true;
-              return;
-            }
-          }
-        });
+    if (this.isFinishedTraining) return;
+
+    if (this.isBreak) {
+      this.exerciseIndex++;
+
+      if (
+        this.exerciseIndex ==
+        this.training.trainingGroups[this.groupIndex].exercises.length
+      ) {
+        if (
+          this.seriesIndex ==
+          this.training.trainingGroups[this.groupIndex].numberOfSeries
+        ) {
+          this.groupIndex++;
+          this.seriesIndex = 1;
+        } else {
+          this.seriesIndex++;
+        }
+        this.exerciseIndex = 0;
       }
 
-      if (done) return;
-    });
+      if (this.groupIndex == this.training.trainingGroups.length) {
+        this.isFinishedTraining = true;
+        return;
+      }
+
+      this.currentExercise =
+        this.training.trainingGroups[this.groupIndex].exercises[
+          this.exerciseIndex
+        ];
+      this.currentGroup = this.training.trainingGroups[this.groupIndex];
+      this.currentTime = this.training.time;
+    } else {
+      this.currentTime = this.training.break;
+    }
+
+    this.isBreak = !this.isBreak;
+  }
+
+  moveBack() {
+    if (this.isFinishedTraining) {
+      this.isBreak = false;
+    }
+
+    if (this.groupIndex == 0 && this.exerciseIndex == 0 && this.seriesIndex == 1 && this.isBreak) {
+      this.isBreak = !this.isBreak;
+    };
+
+    if (this.groupIndex == 0 && this.exerciseIndex == 0 && this.seriesIndex == 1) return;
+
+    console.log(this.exerciseIndex);
+    console.log(this.seriesIndex);
+    console.log(this.groupIndex);
+
+    if (!this.isBreak) {
+      this.exerciseIndex--;
+
+      if (this.exerciseIndex <= 0) {
+        if (this.seriesIndex == 1) {
+          if (this.groupIndex > 0) {
+            this.groupIndex--;
+          }
+        } else if (this.exerciseIndex == this.training.trainingGroups[this.groupIndex].exercises.length - 1) {
+          this.seriesIndex--;
+        }
+
+        this.exerciseIndex = 0;
+      }
+      console.log(this.exerciseIndex)
+      console.log(this.seriesIndex)
+      console.log(this.groupIndex)
+      if (this.isFinishedTraining) {
+        this.isFinishedTraining = false;
+        this.groupIndex = this.training.trainingGroups.length - 1;
+        this.exerciseIndex =
+          this.training.trainingGroups[this.groupIndex].exercises.length - 1;
+        this.seriesIndex =
+          this.training.trainingGroups[this.groupIndex].numberOfSeries;
+      }
+      console.log('------')
+console.log(this.groupIndex)
+console.log(this.exerciseIndex)
+      this.currentExercise =
+        this.training.trainingGroups[this.groupIndex].exercises[
+          this.exerciseIndex
+        ];
+      this.currentGroup = this.training.trainingGroups[this.groupIndex];
+      this.currentTime = this.training.time;
+    } else {
+      this.currentTime = this.training.break;
+    }
+
+    this.isBreak = !this.isBreak;
   }
 }

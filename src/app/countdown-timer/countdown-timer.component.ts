@@ -11,8 +11,10 @@ export class CountdownTimerComponent implements OnInit, OnDestroy {
   @Output() onFinish: EventEmitter<boolean> = new EventEmitter();
   displayTime: string = '';
   private subscription: Subscription;
+  private audio: HTMLAudioElement;
 
   ngOnInit() {
+    this.audio = new Audio('./assets/beep.mp3'); // Adjust the path to your sound file
     this.startTimer();
   }
 
@@ -36,6 +38,11 @@ export class CountdownTimerComponent implements OnInit, OnDestroy {
   private formatTime(seconds: number): string {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
+    
+    if (remainingSeconds < 10) {
+      this.audio?.play();
+    }
+
     return `${this.pad(minutes)}:${this.pad(remainingSeconds)}`;
   }
 

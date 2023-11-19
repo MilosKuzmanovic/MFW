@@ -28,6 +28,7 @@ export class AddTrainingComponent {
     this.trainingDetails.trainingGroups.push({
       id: GuidGenerator.newGuid(),
       order: 0,
+      numberOfSeries: 0,
       name: '',
       description: '',
       exercises: [],

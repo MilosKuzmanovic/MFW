@@ -1,37 +1,47 @@
 <ion-content *ngIf="trainingDetails">
+  <ion-button color="danger" expand="full" (click)="getBack.emit(true)">Odustani</ion-button>
+
   <ion-card color="medium">
     <ion-card-content>
-      <ion-input [(ngModel)]="trainingDetails.name" placeholder="Name"></ion-input>
-      <ion-input [(ngModel)]="trainingDetails.description" placeholder="Description"></ion-input>
-      <ion-input [(ngModel)]="trainingDetails.time" placeholder="Time"></ion-input>
-      <ion-input [(ngModel)]="trainingDetails.break" placeholder="Break"></ion-input>
+      <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="trainingDetails.name" placeholder="Name"></ion-input>
+      <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="trainingDetails.description" placeholder="Description"></ion-input>
+      <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="trainingDetails.time" placeholder="Time"></ion-input>
+      <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="trainingDetails.break" placeholder="Break"></ion-input>
 
       <ion-card color="light" *ngFor="let group of trainingDetails.trainingGroups">
         <ion-card-content>
-          <ion-icon size="large" name="trash-outline" class="clickable" (click)="removeGroup(group)"></ion-icon>
+          <div style="display: flex; justify-content: flex-end;">
+            <ion-button color="danger" (click)="removeGroup(group)">
+              <ion-icon size="large" name="trash-outline"></ion-icon>
+            </ion-button>
+          </div>
 
-          <ion-input [(ngModel)]="group.name" placeholder="Group Name"></ion-input>
-          <ion-input [(ngModel)]="group.description" placeholder="Group Description"></ion-input>
-          <ion-input [(ngModel)]="group.order" placeholder="Group Order"></ion-input>
+          <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="group.name" placeholder="Group Name"></ion-input>
+          <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="group.description" placeholder="Group Description"></ion-input>
+          <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="group.numberOfSeries" placeholder="Number Of Series"></ion-input>
+          <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="group.order" placeholder="Group Order"></ion-input>
 
           <ion-card color="warning" *ngFor="let exercise of group.exercises">
             <ion-card-content>
-              <ion-icon size="large" name="trash-outline" class="clickable" (click)="removeExercise(exercise)"></ion-icon>
+              <div style="display: flex; justify-content: flex-end;">
+                <ion-button color="danger" (click)="removeExercise(exercise)">
+                  <ion-icon size="large" name="trash-outline"></ion-icon>
+                </ion-button>
+              </div>
 
-              <ion-input [(ngModel)]="exercise.name" placeholder="Exercise Name"></ion-input>
-              <ion-input [(ngModel)]="exercise.description" placeholder="Exercise Description"></ion-input>
-              <ion-input [(ngModel)]="exercise.order" placeholder="Exercise Order"></ion-input>
+              <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="exercise.name" placeholder="Exercise Name"></ion-input>
+              <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="exercise.description" placeholder="Exercise Description"></ion-input>
+              <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="exercise.order" placeholder="Exercise Order"></ion-input>
             </ion-card-content>
           </ion-card>
 
-          <ion-button (click)="addExercise(group)">Dodaj vežbu</ion-button>
+          <ion-button expand="full" color="warning" (click)="addExercise(group)">Dodaj vežbu</ion-button>
         </ion-card-content>
       </ion-card>
 
-      <ion-button (click)="addGroup()">Dodaj grupu</ion-button>
+      <ion-button color="light" expand="full" (click)="addGroup()">Dodaj grupu</ion-button>
     </ion-card-content>
   </ion-card>
 
-  <ion-button (click)="getBack.emit(true)">Nazad</ion-button>
-  <ion-button (click)="saveTraining()">Sacuvaj</ion-button>
+  <ion-button expand="full" (click)="saveTraining()">Sacuvaj</ion-button>
 </ion-content>

@@ -16,7 +16,7 @@ import { CountdownTimerComponent } from './countdown-timer/countdown-timer.compo
     TrainingsComponent,
     AddTrainingComponent,
     PlayTrainingComponent,
-    CountdownTimerComponent
+    CountdownTimerComponent,
   ],
   imports: [BrowserModule, FormsModule, ReactiveFormsModule, IonicModule.forRoot(), AppRoutingModule],
   bootstrap: [AppComponent],
