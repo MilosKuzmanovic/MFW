@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Router } from '@angular/router';
 import { TrainingService } from '../services/training.service';
 import { Training } from '../models/Training';
 import { TrainingGroup } from '../models/TrainingGroup';
@@ -36,7 +35,6 @@ export class AddTrainingComponent {
   ];
 
   constructor(
-    private router: Router,
     private trainingService: TrainingService,
     private toast: ToastController
   ) {}

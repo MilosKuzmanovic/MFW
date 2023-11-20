@@ -24,9 +24,9 @@
 
       <div style="display: flex; justify-content: space-between;">
         <div style="width: 50%;">
-          <ion-button style="width: 35%; height: 80%;" color="success"
+          <ion-button style="width: 45%; height: 80%;" color="success"
             (click)="playTraining(training)">Treniraj</ion-button>
-          <ion-button style="width: 35%; height: 80%;" color="warning" (click)="review(training)">Pregled</ion-button>
+          <ion-button style="width: 45%; height: 80%;" color="warning" (click)="review(training)">Pregled</ion-button>
         </div>
         <ion-button color="danger" id="remove-alert-{{training.id}}" (click)="selectedTrainingForRemoval = training">
           <ion-icon size="large" name="trash-outline"></ion-icon>
@@ -34,7 +34,7 @@
       </div>
 
       <ion-alert trigger="remove-alert-{{training.id}}" class="custom-alert"
-        header="Da li si siguran da zelis da obrises trening?" [buttons]="alertButtons"></ion-alert>
+        header="Da li si siguran da želiš da obrišeš trening?" [buttons]="alertButtons"></ion-alert>
     </ion-card>
 
     <ion-button expand="full" (click)="addTraining()">Dodaj Trening</ion-button>
