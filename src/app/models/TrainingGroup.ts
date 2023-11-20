@@ -2,8 +2,8 @@ import { Exercise } from "./Exercise";
 
 export class TrainingGroup {
     id: string;
-    order: number;
-    numberOfSeries: number;
+    order: string;
+    numberOfSeries: string;
     name: string;
     description: string;
     exercises: Exercise[];

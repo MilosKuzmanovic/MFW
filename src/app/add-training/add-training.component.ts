@@ -18,6 +18,23 @@ export class AddTrainingComponent {
   @Output() trainingSaved: EventEmitter<boolean> = new EventEmitter();
   @Output() getBack: EventEmitter<boolean> = new EventEmitter();
 
+  public alertButtons = [
+    {
+      text: 'CANCEL',
+      role: 'cancel',
+      handler: () => {
+        console.log('Alert canceled');
+      },
+    },
+    {
+      text: 'YES',
+      role: 'confirm',
+      handler: () => {
+        this.getBack.emit(true);
+      },
+    },
+  ];
+
   constructor(
     private router: Router,
     private trainingService: TrainingService,
@@ -27,8 +44,8 @@ export class AddTrainingComponent {
   addGroup(): void {
     this.trainingDetails.trainingGroups.push({
       id: GuidGenerator.newGuid(),
-      order: 0,
-      numberOfSeries: 0,
+      order: (this.trainingDetails.trainingGroups.length + 1).toString(),
+      numberOfSeries: '',
       name: '',
       description: '',
       exercises: [],
@@ -38,71 +55,87 @@ export class AddTrainingComponent {
   addExercise(group: TrainingGroup): void {
     group.exercises.push({
       id: GuidGenerator.newGuid(),
-      order: 0,
+      order: (group.exercises.length + 1).toString(),
       name: '',
-      description: ''
+      description: '',
     });
   }
 
   async saveTraining() {
-    if (!this.trainingDetails.name || !this.trainingDetails.time || !this.trainingDetails.break) {
+    if (
+      !this.trainingDetails.name ||
+      !this.trainingDetails.time ||
+      !this.trainingDetails.breakBetweenGroups ||
+      !this.trainingDetails.breakBetweenExercises
+    ) {
       const toast = await this.toast.create({
         message: 'Popuni naziv, vreme i pauzu za trening!',
         duration: 1500,
         position: 'middle',
       });
-  
+
       await toast.present();
 
       return;
     }
 
-    this.trainingDetails.trainingGroups.some(x => x.name)
-    if (!this.trainingDetails.trainingGroups || this.trainingDetails.trainingGroups.length == 0) {
+    this.trainingDetails.trainingGroups.some((x) => x.name);
+    if (
+      !this.trainingDetails.trainingGroups ||
+      this.trainingDetails.trainingGroups.length == 0
+    ) {
       const toast = await this.toast.create({
         message: 'Dodaj grupu treninga!',
         duration: 1500,
         position: 'middle',
       });
-  
+
       await toast.present();
 
       return;
     }
 
-    if (this.trainingDetails.trainingGroups.some(x => !x.name)) {
+    if (this.trainingDetails.trainingGroups.some((x) => !x.name)) {
       const toast = await this.toast.create({
         message: 'Popuni naziv za grupe treninga!',
         duration: 1500,
         position: 'middle',
       });
-  
+
       await toast.present();
 
       return;
     }
 
-    if (this.trainingDetails.trainingGroups.some(x => !x.exercises || x.exercises.length == 0)) {
+    if (
+      this.trainingDetails.trainingGroups.some(
+        (x) => !x.exercises || x.exercises.length == 0
+      )
+    ) {
       const toast = await this.toast.create({
         message: 'Dodaj vežbe u grupu treninga!',
         duration: 1500,
         position: 'middle',
       });
-  
+
       await toast.present();
-     
+
       return;
     }
 
-    if (this.trainingDetails.trainingGroups.some(x => x.exercises.some(y => !y.name))) {
+    if (
+      this.trainingDetails.trainingGroups.some((x) =>
+        x.exercises.some((y) => !y.name)
+      )
+    ) {
       const toast = await this.toast.create({
         message: 'Popuni naziv za vežbe!',
         duration: 1500,
         position: 'middle',
       });
-  
+
       await toast.present();
-     
+
       return;
     }
 
@@ -116,12 +149,13 @@ export class AddTrainingComponent {
   }
 
   removeGroup(group: TrainingGroup) {
-    this.trainingDetails.trainingGroups = this.trainingDetails.trainingGroups.filter(x => x.id !== group.id);
+    this.trainingDetails.trainingGroups =
+      this.trainingDetails.trainingGroups.filter((x) => x.id !== group.id);
   }
 
   removeExercise(exercise: Exercise) {
-    this.trainingDetails.trainingGroups.forEach(group => {
-      group.exercises = group.exercises.filter(x => x.id !== exercise.id);
+    this.trainingDetails.trainingGroups.forEach((group) => {
+      group.exercises = group.exercises.filter((x) => x.id !== exercise.id);
     });
   }
 }

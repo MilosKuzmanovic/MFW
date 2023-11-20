@@ -2,9 +2,28 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 60vh;
 
   p {
-    font-size: 2rem;
+    font-size: 5rem;
+  }
+}
+
+.time-alert {
+  animation: textAnimation 1s infinite; /* 1s trajanje animacije, infinite se ponavlja beskonačno */
+}
+
+@keyframes textAnimation {
+  0% {
+    font-size: 5rem;
+    color: white;
+  }
+  50% {
+    font-size: 7rem;
+    color: red;
+  }
+  100% {
+    font-size: 5rem;
+    color: white;
   }
 }

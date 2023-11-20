@@ -4,7 +4,9 @@ export class Training {
     id: string;
     name: string;
     description: string;
-    time: number;
-    break: number;
+    time: string;
+    breakBetweenGroups: string;
+    breakBetweenSeries: string;
+    breakBetweenExercises: string;
     trainingGroups: TrainingGroup[];
 }

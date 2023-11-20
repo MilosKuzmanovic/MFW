@@ -14,6 +14,26 @@ export class TrainingsComponent implements OnInit {
   trainings: Training[] = [];
   selectedTraining: Training;
   addingTraining: boolean;
+  reviewing: boolean;
+  selectedTrainingForRemoval: Training;
+  selectedTrainingForReview: Training | undefined;
+
+  public alertButtons = [
+    {
+      text: 'CANCEL',
+      cssClass: 'alert-button-cancel',
+      handler: () => {
+        console.log('Alert canceled');
+      },
+    },
+    {
+      text: 'YES',
+      cssClass: 'alert-button-confirm',
+      handler: () => {
+        this.removeTraining(this.selectedTrainingForRemoval);
+      },
+    },
+  ];
 
   constructor(
     private router: Router,
@@ -34,13 +54,20 @@ export class TrainingsComponent implements OnInit {
     this.selectedTraining = training;
   }
 
+  review(training: Training) {
+    this.reviewing = true;
+    this.selectedTrainingForReview = training;
+  }
+
   addTraining(): void {
     this.selectedTraining = {
       id: GuidGenerator.newGuid(),
       name: '',
       description: '',
-      break: 30,
-      time: 60,
+      breakBetweenExercises: '',
+      breakBetweenGroups: '',
+      breakBetweenSeries: '',
+      time: '',
       trainingGroups: [],
     };
 

@@ -1,10 +1,10 @@
 <div *ngIf="currentGroup && currentExercise">
   <div style="display: flex; justify-content: space-between;">
-    <ion-button style="width: 50%" color="danger" (click)="moveBack()">
-      NAZAD
+    <ion-button style="width: 50%; font-size: 20px; height: 5vh;" color="danger" (click)="moveBack()">
+      <b>NAZAD</b>
     </ion-button>
-    <ion-button style="width: 50%" color="success" (click)="moveNext()">
-      NAPRED
+    <ion-button style="width: 50%; font-size: 20px; height: 5vh;" color="success" (click)="moveNext()">
+      <b>NAPRED</b>
     </ion-button>
   </div>
 
@@ -14,18 +14,23 @@
     </div>
   </div>
   <div *ngIf="isBreak && !isFinishedTraining">
-    <div style="position: absolute; margin-left: 50%; margin-top: 15%; transform: translateX(-50%);">
-      <h1><b>PAUZA</b></h1>
+    <div style="position: absolute; margin-left: 50%; margin-top: 5%; transform: translateX(-50%);">
+      <h1 style="font-size: 4rem;"><b>PAUZA</b></h1>
     </div>
-    <app-countdown-timer [durationInSeconds]="currentTime" (onFinish)="moveNext()"></app-countdown-timer>
+    <app-countdown-timer [durationInSeconds]="+currentTime" (onFinish)="moveNext()"></app-countdown-timer>
   </div>
   <div *ngIf="!isBreak && !isFinishedTraining">
-    <div style="display: flex; flex-direction: column; text-align: center;">
-      <h3>Grupa: {{currentGroup.name}} ({{groupIndex + 1}})</h3>
-      <h2>Vežba: {{currentExercise.name}} ({{exerciseIndex + 1}})</h2>
-      <h2>Serija: {{seriesIndex}} ({{currentGroup.numberOfSeries}})</h2>
+    <div style="position: absolute; margin-left: 50%; transform: translateX(-50%);">
+      <div style="display: flex; flex-direction: column; text-align: center;">
+        <h3 style="overflow: hidden; max-height: 38px; font-size: 2rem;"><b style="color: rgb(21, 218, 60);">Grupa:</b> {{currentGroup.name}} ({{groupIndex +
+          1}})</h3>
+        <h2 style="overflow: hidden; max-height: 120px; font-size: 2rem;"><b style="color: rgb(21, 218, 60);">Vežba:</b> {{currentExercise.name}}
+          ({{exerciseIndex + 1}})</h2>
+        <h2 style="overflow: hidden; max-height: 40px; font-size: 2rem;"><b style="color: rgb(21, 218, 60);">Serija:</b> {{seriesIndex}}
+          ({{currentGroup.numberOfSeries}})</h2>
+      </div>
     </div>
-    <app-countdown-timer [durationInSeconds]="currentTime" (onFinish)="moveNext()"></app-countdown-timer>
+    <app-countdown-timer [durationInSeconds]="+currentTime" (onFinish)="moveNext()"></app-countdown-timer>
   </div>
 
 </div>
