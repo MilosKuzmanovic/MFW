@@ -109,6 +109,30 @@ export class PlayTrainingComponent implements OnInit {
     this.isBreak = !this.isBreak;
   }
 
+  get nextExercise(): Exercise | undefined {
+    if (this.isFinishedTraining) return undefined;
+
+    let exerciseIndex = this.exerciseIndex;
+    let groupIndex = this.groupIndex;
+    
+    exerciseIndex++;
+
+    if (
+      exerciseIndex ==
+      this.training.trainingGroups[groupIndex].exercises.length
+    ) {
+      if (
+        this.seriesIndex ==
+        +this.training.trainingGroups[groupIndex].numberOfSeries
+      ) {
+        groupIndex++;
+      }
+      exerciseIndex = 0;
+    }
+
+    return this.training.trainingGroups[groupIndex].exercises[exerciseIndex];
+  }
+
   moveBack() {
     if (this.isFinishedTraining) {
       this.isBreak = false;

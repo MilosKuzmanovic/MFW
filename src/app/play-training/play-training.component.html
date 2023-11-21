@@ -18,15 +18,22 @@
       <h1 style="font-size: 4rem;"><b>PAUZA</b></h1>
     </div>
     <app-countdown-timer [durationInSeconds]="+currentTime" (onFinish)="moveNext()"></app-countdown-timer>
+    <div style="display: flex; flex-direction: column; text-align: center;">
+      <h2 style="overflow: hidden; max-height: 120px; font-size: 2rem;"><b style="color: rgb(21, 218, 60);">Sledi:</b>
+        {{nextExercise?.name}}</h2>
+    </div>
   </div>
   <div *ngIf="!isBreak && !isFinishedTraining">
-    <div style="position: absolute; margin-left: 50%; transform: translateX(-50%);">
+    <div style="margin-left: 50%; transform: translate(-50%); max-width: 70vw;">
       <div style="display: flex; flex-direction: column; text-align: center;">
-        <h3 style="overflow: hidden; max-height: 38px; font-size: 2rem;"><b style="color: rgb(21, 218, 60);">Grupa:</b> {{currentGroup.name}} ({{groupIndex +
+        <h3 style="overflow: hidden; max-height: 38px; font-size: 2rem;"><b style="color: rgb(21, 218, 60);">Grupa:</b>
+          {{currentGroup.name}} ({{groupIndex +
           1}})</h3>
-        <h2 style="overflow: hidden; max-height: 120px; font-size: 2rem;"><b style="color: rgb(21, 218, 60);">Vežba:</b> {{currentExercise.name}}
+        <h2 style="overflow: hidden; max-height: 120px; font-size: 2rem;"><b style="color: rgb(21, 218, 60);">Vežba:</b>
+          {{currentExercise.name}}
           ({{exerciseIndex + 1}})</h2>
-        <h2 style="overflow: hidden; max-height: 40px; font-size: 2rem;"><b style="color: rgb(21, 218, 60);">Serija:</b> {{seriesIndex}}
+        <h2 style="overflow: hidden; max-height: 40px; font-size: 2rem;"><b style="color: rgb(21, 218, 60);">Serija:</b>
+          {{seriesIndex}}
           ({{currentGroup.numberOfSeries}})</h2>
       </div>
     </div>
