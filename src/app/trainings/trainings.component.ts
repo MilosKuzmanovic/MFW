@@ -4,6 +4,7 @@ import { TrainingService } from '../services/training.service';
 import { Training } from '../models/Training';
 import { GuidGenerator } from '../services/guid-generator';
 import { ToastController } from '@ionic/angular';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-trainings',
@@ -17,6 +18,8 @@ export class TrainingsComponent implements OnInit {
   reviewing: boolean;
   selectedTrainingForRemoval: Training;
   selectedTrainingForReview: Training | undefined;
+  isImporting: boolean;
+  importedTraining: string;
 
   public alertButtons = [
     {
@@ -38,7 +41,8 @@ export class TrainingsComponent implements OnInit {
   constructor(
     private router: Router,
     private trainingService: TrainingService,
-    private toast: ToastController
+    private toast: ToastController,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit(): void {
@@ -57,6 +61,52 @@ export class TrainingsComponent implements OnInit {
   review(training: Training) {
     this.reviewing = true;
     this.selectedTrainingForReview = training;
+  }
+
+  importTraining() {
+    this.isImporting = true;
+    this.importedTraining = '';
+  }
+
+  async importTrainingFinish() {
+    let training = {} as Training;
+
+    try {
+      training = JSON.parse(this.importedTraining) as Training;
+    } catch {
+      const toast = await this.toast.create({
+        message: 'Neispravan JSON!',
+        duration: 1500,
+        position: 'middle',
+      });
+
+      await toast.present();
+
+      return;
+    }
+
+    this.isImporting = false;
+
+    if (this.trainings.some((x) => x.name == training.name)) {
+      training.name = `${training.name}_COPY`;
+    }
+
+    training.id = GuidGenerator.newGuid();
+
+    this.trainingService.addTraining(training);
+    this.trainings = this.trainingService.getTrainings();
+  }
+
+  export(training: Training) {
+    var uri = 'data:text/csv;charset=utf-8,' + JSON.stringify(training);
+
+    var downloadLink = document.createElement('a');
+    downloadLink.href = uri;
+    downloadLink.download = `${training.name}.txt`;
+
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
   }
 
   addTraining(): void {

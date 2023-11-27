@@ -19,14 +19,15 @@
       </ion-card-header>
 
       <ion-card-content (click)="editTraining(training)">
-        <h2><b>Opis treninga:</b> {{ training.description }}</h2>
+        <h2 *ngIf="training.description"><b>Opis treninga:</b> {{ training.description }}</h2>
       </ion-card-content>
 
       <div style="display: flex; justify-content: space-between;">
         <div style="width: 50%;">
-          <ion-button style="width: 45%; height: 80%;" color="success"
+          <ion-button style="width: 31%; height: 80%;" color="success"
             (click)="playTraining(training)">Treniraj</ion-button>
-          <ion-button style="width: 45%; height: 80%;" color="warning" (click)="review(training)">Pregled</ion-button>
+          <ion-button style="width: 31%; height: 80%;" color="warning" (click)="review(training)">Pregled</ion-button>
+          <ion-button style="width: 31%; height: 80%;" color="primary" (click)="export(training)">Export</ion-button>
         </div>
         <ion-button color="danger" id="remove-alert-{{training.id}}" (click)="selectedTrainingForRemoval = training">
           <ion-icon size="large" name="trash-outline"></ion-icon>
@@ -37,7 +38,13 @@
         header="Da li si siguran da želiš da obrišeš trening?" [buttons]="alertButtons"></ion-alert>
     </ion-card>
 
-    <ion-button expand="full" (click)="addTraining()">Dodaj Trening</ion-button>
+    <ion-button size="medium" expand="full" (click)="addTraining()">Dodaj Trening</ion-button>
+    <ion-button size="medium" expand="full" *ngIf="!isImporting" (click)="importTraining()" color="medium">Importuj Trening</ion-button>
+    <ion-item *ngIf="isImporting">
+      <ion-input *ngIf="isImporting" [(ngModel)]="importedTraining"
+      placeholder="Ubaci JSON"></ion-input>
+      <ion-button style="width: 40%; height: 75%;" (click)="importTrainingFinish()" color="medium">Završi</ion-button>
+    </ion-item>
   </div>
 
   <app-add-training [hidden]="!addingTraining || reviewing" [isEdit]="!!selectedTraining"
@@ -50,11 +57,16 @@
 
     <div style="margin-left: 10px; letter-spacing: 1px; text-align: justify;">
       <h1 style="text-decoration: underline; text-underline-offset: 7px;">Trening</h1>
-      <div style="margin-top: 5px;"><b>Naziv treninga:</b> {{selectedTrainingForReview.name}}</div>
-      <div style="margin-top: 5px;"><b>Opis treninga:</b> {{selectedTrainingForReview.description}}</div>
-      <div style="margin-top: 5px;"><b>Vreme trajanja vežbi:</b> {{selectedTrainingForReview.time}}</div>
-      <div style="margin-top: 5px;"><b>Pauza između grupa:</b> {{selectedTrainingForReview.breakBetweenGroups}}</div>
-      <div style="margin-top: 5px;"><b>Pauza između vežbi:</b> {{selectedTrainingForReview.breakBetweenExercises}}</div>
+      <div *ngIf="selectedTrainingForReview.name" style="margin-top: 5px;"><b>Naziv treninga:</b>
+        {{selectedTrainingForReview.name}}</div>
+      <div *ngIf="selectedTrainingForReview.description" style="margin-top: 5px;"><b>Opis treninga:</b>
+        {{selectedTrainingForReview.description}}</div>
+      <div *ngIf="selectedTrainingForReview.time" style="margin-top: 5px;"><b>Vreme trajanja vežbi:</b>
+        {{selectedTrainingForReview.time}}</div>
+      <div *ngIf="selectedTrainingForReview.breakBetweenGroups" style="margin-top: 5px;"><b>Pauza između grupa:</b>
+        {{selectedTrainingForReview.breakBetweenGroups}}</div>
+      <div *ngIf="selectedTrainingForReview.breakBetweenExercises" style="margin-top: 5px;"><b>Pauza između vežbi:</b>
+        {{selectedTrainingForReview.breakBetweenExercises}}</div>
     </div>
 
     <ion-card *ngFor="let group of selectedTrainingForReview.trainingGroups"
