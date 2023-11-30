@@ -45,6 +45,7 @@ export class AddTrainingComponent {
       order: (this.trainingDetails.trainingGroups.length + 1).toString(),
       numberOfSeries: '',
       name: '',
+      time: '',
       description: '',
       exercises: [],
     });
@@ -62,12 +63,11 @@ export class AddTrainingComponent {
   async saveTraining() {
     if (
       !this.trainingDetails.name ||
-      !this.trainingDetails.time ||
       !this.trainingDetails.breakBetweenGroups ||
       !this.trainingDetails.breakBetweenExercises
     ) {
       const toast = await this.toast.create({
-        message: 'Popuni naziv, vreme i pauzu za trening!',
+        message: 'Popuni naziv i pauzu za trening!',
         duration: 1500,
         position: 'middle',
       });
@@ -77,7 +77,6 @@ export class AddTrainingComponent {
       return;
     }
 
-    this.trainingDetails.trainingGroups.some((x) => x.name);
     if (
       !this.trainingDetails.trainingGroups ||
       this.trainingDetails.trainingGroups.length == 0
@@ -105,6 +104,22 @@ export class AddTrainingComponent {
       return;
     }
 
+    if (
+      this.trainingDetails.trainingGroups.some(
+        (x) => !x.time
+      )
+    ) {
+      const toast = await this.toast.create({
+        message: 'Dodaj vreme trajanja vežbe!',
+        duration: 1500,
+        position: 'middle',
+      });
+
+      await toast.present();
+
+      return;
+    }
+    
     if (
       this.trainingDetails.trainingGroups.some(
         (x) => !x.exercises || x.exercises.length == 0

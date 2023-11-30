@@ -117,7 +117,6 @@ export class TrainingsComponent implements OnInit {
       breakBetweenExercises: '',
       breakBetweenGroups: '',
       breakBetweenSeries: '',
-      time: '',
       trainingGroups: [],
     };
 

@@ -17,7 +17,7 @@ export class CountdownTimerComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.beepAudio = new Audio('./assets/beep.mp3');
-    this.beepLongAudio = new Audio('./assets/beep-long.mp3');
+    this.beepLongAudio = new Audio('./assets/beep-long-2.mp3');
     this.startTimer();
   }
 
@@ -26,10 +26,21 @@ export class CountdownTimerComponent implements OnInit, OnDestroy {
   }
 
   private startTimer() {
+    this.durationInSeconds = this.durationInSeconds + 1;
+
     const timer$ = timer(0, 1000);
     this.subscription = timer$.subscribe((tick) => {
       const remainingTime = this.durationInSeconds - tick;
-      this.displayTime = this.formatTime(remainingTime);
+      this.displayTime = this.formatTime(remainingTime - 1);
+
+      if (remainingTime - 1 <= 10 && remainingTime > 1) {
+        this.alertClass = 'time-alert'
+        this.beepAudio?.play();
+      }
+  
+      if (remainingTime == 1) {
+        this.beepLongAudio?.play();
+      }
 
       if (remainingTime <= 0) {
         this.onFinish.emit(true);
@@ -42,16 +53,7 @@ export class CountdownTimerComponent implements OnInit, OnDestroy {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     
-    if (seconds <= 10 && seconds > 1) {
-      this.alertClass = 'time-alert'
-      this.beepAudio?.play();
-    }
-
-    if (seconds == 1) {
-      this.beepLongAudio?.play();
-    }
-
-    return `${this.pad(minutes)}:${this.pad(remainingSeconds)}`;
+      return `${this.pad(minutes)}:${this.pad(remainingSeconds)}`;
   }
 
   private pad(val: number): string {

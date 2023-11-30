@@ -5,6 +5,7 @@ export class TrainingGroup {
     order: string;
     numberOfSeries: string;
     name: string;
+    time: string;
     description: string;
     exercises: Exercise[];
 }

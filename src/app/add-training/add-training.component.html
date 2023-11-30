@@ -10,8 +10,6 @@
         placeholder="Naziv treninga"></ion-input>
       <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="trainingDetails.description"
         placeholder="Opis treninga"></ion-input>
-      <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="trainingDetails.time"
-        placeholder="Trajanje vežbe"></ion-input>
       <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="trainingDetails.breakBetweenGroups"
         placeholder="Trajanje pauze između grupa"></ion-input>
       <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="trainingDetails.breakBetweenSeries"
@@ -32,6 +30,8 @@
             placeholder="Naziv grupe"></ion-input>
           <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="group.description"
             placeholder="Opis grupe"></ion-input>
+          <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="group.time"
+            placeholder="Vreme trajanja vežbe"></ion-input>
           <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="group.numberOfSeries"
             placeholder="Broj ponavljanja"></ion-input>
           <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="group.order"

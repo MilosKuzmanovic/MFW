@@ -61,8 +61,6 @@
         {{selectedTrainingForReview.name}}</div>
       <div *ngIf="selectedTrainingForReview.description" style="margin-top: 5px;"><b>Opis treninga:</b>
         {{selectedTrainingForReview.description}}</div>
-      <div *ngIf="selectedTrainingForReview.time" style="margin-top: 5px;"><b>Vreme trajanja vežbi:</b>
-        {{selectedTrainingForReview.time}}</div>
       <div *ngIf="selectedTrainingForReview.breakBetweenGroups" style="margin-top: 5px;"><b>Pauza između grupa:</b>
         {{selectedTrainingForReview.breakBetweenGroups}}</div>
       <div *ngIf="selectedTrainingForReview.breakBetweenExercises" style="margin-top: 5px;"><b>Pauza između vežbi:</b>
@@ -75,6 +73,7 @@
         <h1 style="text-decoration: underline; text-underline-offset: 7px;">Grupa</h1>
         <div><b>Naziv grupe:</b> {{ group.name }}</div>
         <div><b>Opis grupe:</b> {{ group.description }}</div>
+        <div><b>Vreme trajanja vežbe:</b> {{ group.time }}</div>
         <div><b>Redni broj grupe:</b> {{ group.order }}</div>
         <div><b>Broj ponavljanja:</b> {{ group.numberOfSeries }}</div>
         <div *ngFor="let exercise of group.exercises"
