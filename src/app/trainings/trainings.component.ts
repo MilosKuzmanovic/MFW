@@ -171,7 +171,7 @@ export class TrainingsComponent implements OnInit {
   }
 
   playTraining(training: Training) {
-    this.router.navigate(['MFW/play-training'], {
+    this.router.navigate(['play-training'], {
       queryParams: { trainingId: training.id },
     });
   }
