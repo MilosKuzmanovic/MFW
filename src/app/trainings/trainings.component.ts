@@ -69,32 +69,41 @@ export class TrainingsComponent implements OnInit {
   }
 
   async importTrainingFinish() {
-    let training = {} as Training;
+    let trainings: Training[] = [];
 
     try {
-      training = JSON.parse(this.importedTraining) as Training;
+      trainings = JSON.parse(this.importedTraining) as Training[];
+      trainings.forEach(t => console.log(' '));
     } catch {
-      const toast = await this.toast.create({
-        message: 'Neispravan JSON!',
-        duration: 1500,
-        position: 'middle',
-      });
-
-      await toast.present();
-
-      return;
+      trainings = [];
+      try {
+        const training = JSON.parse(this.importedTraining) as Training;
+        trainings.push(training);
+      } catch {
+        const toast = await this.toast.create({
+          message: 'Neispravan JSON!',
+          duration: 1500,
+          position: 'middle',
+        });
+  
+        await toast.present();
+  
+        return;
+      }
     }
 
     this.isImporting = false;
 
-    if (this.trainings.some((x) => x.name == training.name)) {
-      training.name = `${training.name}_COPY`;
-    }
-
-    training.id = GuidGenerator.newGuid();
-
-    this.trainingService.addTraining(training);
-    this.trainings = this.trainingService.getTrainings();
+    trainings.forEach(training => {
+      if (this.trainings.some((x) => x.name == training.name)) {
+        training.name = `${training.name}_COPY`;
+      }
+  
+      training.id = GuidGenerator.newGuid();
+  
+      this.trainingService.addTraining(training);
+      this.trainings = this.trainingService.getTrainings();
+    })
   }
 
   export(training: Training) {
@@ -103,6 +112,18 @@ export class TrainingsComponent implements OnInit {
     var downloadLink = document.createElement('a');
     downloadLink.href = uri;
     downloadLink.download = `${training.name}.txt`;
+
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  }
+
+  exportAll() {
+    var uri = 'data:text/csv;charset=utf-8,' + JSON.stringify(this.trainings);
+
+    var downloadLink = document.createElement('a');
+    downloadLink.href = uri;
+    downloadLink.download = `all_trainings.txt`;
 
     document.body.appendChild(downloadLink);
     downloadLink.click();
@@ -150,7 +171,7 @@ export class TrainingsComponent implements OnInit {
   }
 
   playTraining(training: Training) {
-    this.router.navigate(['play-training'], {
+    this.router.navigate(['MFW/play-training'], {
       queryParams: { trainingId: training.id },
     });
   }
