@@ -6,6 +6,8 @@ import { TrainingGroup } from '../models/TrainingGroup';
 import { Exercise } from '../models/Exercise';
 import { GuidGenerator } from '../services/guid-generator';
 import { TrainingsComponent } from '../trainings/trainings.component';
+import { Platform } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-play-training',
@@ -24,12 +26,24 @@ export class PlayTrainingComponent implements OnInit {
   seriesIndex: number = 1;
   isFinishedTraining: boolean;
 
+  private resumeSubscription: Subscription;
+  private pauseSubscription: Subscription;
+
   constructor(
     private route: ActivatedRoute,
-    private trainingService: TrainingService
+    private trainingService: TrainingService,
+    private platform: Platform
   ) {}
 
   ngOnInit() {
+    this.resumeSubscription = this.platform.resume.subscribe(() => {
+      console.log('Device resumed');
+    });
+
+    this.pauseSubscription = this.platform.pause.subscribe(() => {
+      console.log('Device paused');
+    });
+
     this.trainingId = this.route.snapshot.queryParams['trainingId'];
 
     if (this.trainingId) {
@@ -50,6 +64,15 @@ export class PlayTrainingComponent implements OnInit {
         this.isBreak = false;
         this.currentTime = this.currentGroup.time;
       }
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.resumeSubscription) {
+      this.resumeSubscription.unsubscribe();
+    }
+    if (this.pauseSubscription) {
+      this.pauseSubscription.unsubscribe();
     }
   }
 

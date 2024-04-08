@@ -14,7 +14,7 @@
     </div>
   </div>
   <div *ngIf="isBreak && !isFinishedTraining">
-    <div style="position: absolute; margin-left: 50%; margin-top: 5%; transform: translateX(-50%);">
+    <div style="position: absolute; margin-left: 50%; transform: translateX(-50%);">
       <h1 style="font-size: 4rem;"><b>PAUZA</b></h1>
     </div>
     <app-countdown-timer [durationInSeconds]="+currentTime" (onFinish)="moveNext()"></app-countdown-timer>
@@ -24,17 +24,17 @@
     </div>
     <div style="display: flex; flex-direction: column; text-align: center; border-top: 1px solid red;">
       <h2 style="overflow: hidden; max-height: 20px; padding: 0; font-size: 1.2rem;"><b style="color: rgb(220, 255, 227);">Završeno</b></h2>
-      <div style="margin-left: 50%; transform: translate(-50%);">
+      <div style="margin-left: 50%; transform: translateX(-50%); width: 100%; display: flex; align-items: center; justify-content: center;">
         <div style="display: flex; text-align: center;">
-          <h3 style="overflow: hidden; max-height: 38px; font-size: .7rem; flex-direction: column; display: flex;"><b style="color: rgb(21, 218, 60);">Grupa</b>
-            <span>{{currentGroup.name}} ({{groupIndex +
-              1}}/{{training.trainingGroups.length}})</span></h3>
-          <h2 style="overflow: hidden; max-height: 120px; font-size: .7rem; flex-direction: column; display: flex;"><b style="color: rgb(21, 218, 60);">Vežba</b>
-            <span>{{currentExercise.name}}
-              ({{exerciseIndex + 1}}/{{currentGroup.exercises.length}})</span></h2>
-          <h2 style="overflow: hidden; max-height: 40px; font-size: .7rem; flex-direction: column; display: flex;"><b style="color: rgb(21, 218, 60);">Serija</b>
-            <span>Serija {{seriesIndex}} 
-              {{seriesIndex}}/{{currentGroup.numberOfSeries}}</span></h2>
+          <h3 style="overflow: hidden; max-height: 45px; font-size: .7rem; flex-direction: column; display: flex; padding-left: 5px; padding-right: 5px; padding-top: 7px;"><b style="color: rgb(21, 218, 60);">Grupa</b>
+            <span>{{currentGroup.name}}</span>
+            <span>({{groupIndex + 1}}/{{training.trainingGroups.length}})</span></h3>
+          <h2 style="overflow: hidden; max-height: 120px; font-size: .7rem; flex-direction: column; display: flex; padding-left: 5px; padding-right: 5px; padding-top: 5px;"><b style="color: rgb(21, 218, 60);">Vežba</b>
+            <span>{{currentExercise.name}}</span>
+            <span>({{exerciseIndex + 1}}/{{currentGroup.exercises.length}})</span></h2>
+          <h2 style="overflow: hidden; max-height: 45px; font-size: .7rem; flex-direction: column; display: flex; padding-left: 5px; padding-right: 5px; padding-top: 5px;"><b style="color: rgb(21, 218, 60);">Serija</b>
+            <span>Serija {{seriesIndex}}</span>
+            <span>({{seriesIndex}}/{{currentGroup.numberOfSeries}})</span></h2>
         </div>
       </div>
     </div>
