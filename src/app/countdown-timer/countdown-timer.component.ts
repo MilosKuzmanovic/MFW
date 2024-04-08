@@ -10,12 +10,14 @@ export class CountdownTimerComponent implements OnInit, OnDestroy {
   @Input() durationInSeconds: number = 60;
   @Output() onFinish: EventEmitter<boolean> = new EventEmitter();
   displayTime: string = '';
-  subscription: Subscription;
-  beepAudio: HTMLAudioElement;
-  beepLongAudio: HTMLAudioElement;
+  private subscription: Subscription;
+  private beepAudio: HTMLAudioElement;
+  private beepLongAudio: HTMLAudioElement;
   alertClass: string;
 
   ngOnInit() {
+    this.beepAudio = new Audio('./assets/beep.mp3');
+    this.beepLongAudio = new Audio('./assets/beep-long-2.mp3');
     this.startTimer();
   }
 
@@ -33,19 +35,22 @@ export class CountdownTimerComponent implements OnInit, OnDestroy {
 
       if (remainingTime - 1 <= 10 && remainingTime > 1) {
         this.alertClass = 'time-alert'
-        setTimeout(() => {
-          this.beepAudio = new Audio('./assets/beep.mp3')
-          this.beepAudio.muted = false;
+        try {
           this.beepAudio.play();
-        }, 0);
+        } catch {
+          this.beepAudio = new Audio('./assets/beep.mp3');
+          this.beepAudio.play();
+        }
       }
   
       if (remainingTime == 1) {
-        setTimeout(() => {
-          this.beepLongAudio = new Audio('./assets/beep-long-2.mp3')
-          this.beepLongAudio.muted = false;
+        this.beepAudio.pause();
+        try {
           this.beepLongAudio.play();
-        }, 0);
+        } catch {
+          this.beepLongAudio = new Audio('./assets/beep.mp3');
+          this.beepLongAudio.play();
+        }
       }
 
       if (remainingTime <= 0) {
