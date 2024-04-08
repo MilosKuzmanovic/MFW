@@ -25,6 +25,7 @@ export class PlayTrainingComponent implements OnInit {
   groupIndex: number = 0;
   seriesIndex: number = 1;
   isFinishedTraining: boolean;
+  wakeLock: any;
 
   private resumeSubscription: Subscription;
   private pauseSubscription: Subscription;
@@ -33,7 +34,25 @@ export class PlayTrainingComponent implements OnInit {
     private route: ActivatedRoute,
     private trainingService: TrainingService,
     private platform: Platform
-  ) {}
+  ) {
+    if ('wakeLock' in navigator) {
+      console.log('wakeLock API is supported');
+    } else {
+      console.log('wakeLock API is not supported');
+    }
+
+    const requestWakeLock = async () => {
+      try {
+        this.wakeLock = await navigator.wakeLock.request('screen');
+        console.log('Wake Lock acquired');
+      } catch (err: any) {
+        console.error(`${err.name}, ${err.message}`);
+      }
+    };
+
+    // Pozovite ovu funkciju kada želite da sprečite uspavljivanje uređaja
+    requestWakeLock();
+  }
 
   ngOnInit() {
     this.resumeSubscription = this.platform.resume.subscribe(() => {
@@ -74,6 +93,18 @@ export class PlayTrainingComponent implements OnInit {
     if (this.pauseSubscription) {
       this.pauseSubscription.unsubscribe();
     }
+
+    const releaseWakeLock = () => {
+      if (this.wakeLock !== null) {
+        this.wakeLock.release().then(() => {
+          this.wakeLock = null;
+          console.log('Wake Lock released');
+        });
+      }
+    };
+
+    // Pozovite ovu funkciju kada želite da dozvolite uspavljivanje uređaja
+    releaseWakeLock();
   }
 
   moveNext() {
@@ -105,23 +136,23 @@ export class PlayTrainingComponent implements OnInit {
 
       this.currentExercise =
         this.training.trainingGroups[this.groupIndex].exercises[
-          this.exerciseIndex
+        this.exerciseIndex
         ];
       this.currentGroup = this.training.trainingGroups[this.groupIndex];
       this.currentTime = this.currentGroup.time;
     } else {
       if (
         this.training.trainingGroups[this.groupIndex].exercises.length ==
-          this.exerciseIndex + 1 &&
+        this.exerciseIndex + 1 &&
         +this.training.trainingGroups[this.groupIndex].numberOfSeries ==
-          this.seriesIndex
+        this.seriesIndex
       ) {
         this.currentTime = this.training.breakBetweenGroups;
       } else if (
         this.training.trainingGroups[this.groupIndex].exercises.length ==
-          this.exerciseIndex + 1 &&
+        this.exerciseIndex + 1 &&
         +this.training.trainingGroups[this.groupIndex].numberOfSeries >
-          this.seriesIndex
+        this.seriesIndex
       ) {
         this.currentTime = this.training.breakBetweenSeries;
       } else {
@@ -141,7 +172,7 @@ export class PlayTrainingComponent implements OnInit {
 
     let exerciseIndex = this.exerciseIndex;
     let groupIndex = this.groupIndex;
-    
+
     exerciseIndex++;
 
     if (
@@ -216,7 +247,7 @@ export class PlayTrainingComponent implements OnInit {
 
       this.currentExercise =
         this.training.trainingGroups[this.groupIndex].exercises[
-          this.exerciseIndex
+        this.exerciseIndex
         ];
       this.currentGroup = this.training.trainingGroups[this.groupIndex];
 
@@ -224,16 +255,16 @@ export class PlayTrainingComponent implements OnInit {
         this.currentTime = this.currentGroup.time;
       } else if (
         this.training.trainingGroups[this.groupIndex].exercises.length ==
-          this.exerciseIndex + 1 &&
+        this.exerciseIndex + 1 &&
         +this.training.trainingGroups[this.groupIndex].numberOfSeries ==
-          this.seriesIndex
+        this.seriesIndex
       ) {
         this.currentTime = this.training.breakBetweenGroups;
       } else if (
         this.training.trainingGroups[this.groupIndex].exercises.length ==
-          this.exerciseIndex + 1 &&
+        this.exerciseIndex + 1 &&
         +this.training.trainingGroups[this.groupIndex].numberOfSeries >
-          this.seriesIndex
+        this.seriesIndex
       ) {
         this.currentTime = this.training.breakBetweenSeries;
       } else {
