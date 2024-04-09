@@ -120,7 +120,7 @@ export class TrainingsComponent implements OnInit {
   }
 
   exportAll() {
-    var uri = 'data:text/csv;charset=utf-8,' + JSON.stringify(this.trainings);
+    var uri = 'data:text/txt;charset=utf-8,' + JSON.stringify(this.trainings);
 
     var downloadLink = document.createElement('a');
     downloadLink.href = uri;
