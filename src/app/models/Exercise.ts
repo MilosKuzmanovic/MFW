@@ -3,4 +3,5 @@ export class Exercise {
     name: string;
     description: string;
     order: string;
+    time: string;
 }

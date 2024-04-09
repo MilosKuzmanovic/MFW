@@ -81,7 +81,7 @@ export class PlayTrainingComponent implements OnInit {
         this.currentExercise = this.training.trainingGroups[0].exercises[0];
 
         this.isBreak = false;
-        this.currentTime = this.currentGroup.time;
+        this.currentTime = this.currentGroup.time ?? this.currentGroup.time;
       }
     }
   }
@@ -139,7 +139,7 @@ export class PlayTrainingComponent implements OnInit {
         this.exerciseIndex
         ];
       this.currentGroup = this.training.trainingGroups[this.groupIndex];
-      this.currentTime = this.currentGroup.time;
+      this.currentTime = this.currentExercise.time ?? this.currentGroup.time;
     } else {
       if (
         this.training.trainingGroups[this.groupIndex].exercises.length ==
@@ -210,7 +210,7 @@ export class PlayTrainingComponent implements OnInit {
       this.exerciseIndex == 0 &&
       this.seriesIndex == 1
     ) {
-      this.currentTime = this.currentGroup.time;
+      this.currentTime = this.currentGroup.time ?? this.currentGroup.time;
       return;
     }
 
@@ -252,7 +252,7 @@ export class PlayTrainingComponent implements OnInit {
       this.currentGroup = this.training.trainingGroups[this.groupIndex];
 
       if (this.isFinishedTraining) {
-        this.currentTime = this.currentGroup.time;
+        this.currentTime = this.currentGroup.time ?? this.currentGroup.time;
       } else if (
         this.training.trainingGroups[this.groupIndex].exercises.length ==
         this.exerciseIndex + 1 &&
@@ -271,7 +271,7 @@ export class PlayTrainingComponent implements OnInit {
         this.currentTime = this.training.breakBetweenExercises;
       }
     } else {
-      this.currentTime = this.currentGroup.time;
+      this.currentTime = this.currentGroup.time ?? this.currentGroup.time;
     }
 
     if (this.isFinishedTraining) {

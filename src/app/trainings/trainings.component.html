@@ -20,6 +20,7 @@
 
       <ion-card-content (click)="editTraining(training)">
         <h2 *ngIf="training.description"><b>Opis treninga:</b> {{ training.description }}</h2>
+        <h2 *ngIf="training.totalTime"><b>Trajanje treninga:</b> {{ training.totalTime }}</h2>
       </ion-card-content>
 
       <div>
