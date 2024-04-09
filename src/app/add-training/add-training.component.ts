@@ -12,10 +12,21 @@ import { GuidGenerator } from '../services/guid-generator';
   styleUrls: ['./add-training.component.scss'],
 })
 export class AddTrainingComponent {
-  @Input() trainingDetails: Training;
   @Input() isEdit: boolean;
   @Output() trainingSaved: EventEmitter<boolean> = new EventEmitter();
   @Output() getBack: EventEmitter<boolean> = new EventEmitter();
+
+  private _trainingDetails: Training;
+
+  @Input()
+  set trainingDetails(training: Training) {
+    this._trainingDetails = training;
+    this._trainingDetails?.trainingGroups?.forEach(tg => tg.exercises?.forEach(te => te.time ??= tg.time));
+  }
+
+  get trainingDetails(): Training {
+    return this._trainingDetails;
+  }
 
   public alertButtons = [
     {
@@ -37,7 +48,8 @@ export class AddTrainingComponent {
   constructor(
     private trainingService: TrainingService,
     private toast: ToastController
-  ) {}
+  ) {
+  }
 
   addGroup(): void {
     this.trainingDetails.trainingGroups.push({
@@ -57,6 +69,7 @@ export class AddTrainingComponent {
       order: (group.exercises.length + 1).toString(),
       name: '',
       description: '',
+      time: group.time
     });
   }
 
@@ -110,7 +123,7 @@ export class AddTrainingComponent {
       )
     ) {
       const toast = await this.toast.create({
-        message: 'Dodaj vreme trajanja vežbe!',
+        message: 'Dodaj vreme trajanja grupe!',
         duration: 1500,
         position: 'middle',
       });
@@ -152,10 +165,29 @@ export class AddTrainingComponent {
       return;
     }
 
+    if (
+      this.trainingDetails.trainingGroups.some(
+        (x) => x.exercises.some(ex => !ex.time)
+      )
+    ) {
+      const toast = await this.toast.create({
+        message: 'Dodaj vreme trajanja vežbe!',
+        duration: 1500,
+        position: 'middle',
+      });
+
+      await toast.present();
+
+      return;
+    }
+    
+    const training = new Training(this.trainingDetails);
+    training.calculateTotalTime();
+
     if (this.isEdit) {
-      this.trainingService.editTraining(this.trainingDetails);
+      this.trainingService.editTraining(training);
     } else {
-      this.trainingService.addTraining(this.trainingDetails);
+      this.trainingService.addTraining(training);
     }
 
     this.trainingSaved.emit(true);

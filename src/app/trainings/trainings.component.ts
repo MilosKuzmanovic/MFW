@@ -4,7 +4,7 @@ import { TrainingService } from '../services/training.service';
 import { Training } from '../models/Training';
 import { GuidGenerator } from '../services/guid-generator';
 import { ToastController } from '@ionic/angular';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-trainings',
@@ -51,6 +51,7 @@ export class TrainingsComponent implements OnInit {
 
   loadTrainings() {
     this.trainings = this.trainingService.getTrainings();
+    console.log(this.trainings)
   }
 
   editTraining(training: Training): void {
@@ -107,7 +108,7 @@ export class TrainingsComponent implements OnInit {
   }
 
   export(training: Training) {
-    var uri = 'data:text/csv;charset=utf-8,' + JSON.stringify(training);
+    var uri = 'data:text/txt;charset=utf-8,' + JSON.stringify(training);
 
     var downloadLink = document.createElement('a');
     downloadLink.href = uri;
@@ -131,17 +132,32 @@ export class TrainingsComponent implements OnInit {
   }
 
   addTraining(): void {
-    this.selectedTraining = {
-      id: GuidGenerator.newGuid(),
-      name: '',
-      description: '',
-      breakBetweenExercises: '',
-      breakBetweenGroups: '',
-      breakBetweenSeries: '',
-      trainingGroups: [],
-    };
+    this.selectedTraining = new Training({} as Training);
 
     this.addingTraining = true;
+  }
+
+  convertSeconds(totalSeconds: number) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const remainingSecondsAfterHours = totalSeconds % 3600;
+    const minutes = Math.floor(remainingSecondsAfterHours / 60);
+    const seconds = remainingSecondsAfterHours % 60;
+
+    let formattedTime = '';
+
+    if (hours > 0) {
+        formattedTime += `${hours}h `;
+    }
+
+    if (minutes > 0) {
+        formattedTime += `${minutes}min `;
+    }
+
+    if (seconds > 0 || (hours === 0 && minutes === 0)) {
+        formattedTime += `${seconds}s`;
+    }
+
+    return formattedTime;
   }
 
   async removeTraining(training: Training) {

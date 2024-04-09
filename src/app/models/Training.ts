@@ -1,3 +1,4 @@
+import { GuidGenerator } from "../services/guid-generator";
 import { TrainingGroup } from "./TrainingGroup";
 
 export class Training {
@@ -8,8 +9,29 @@ export class Training {
     breakBetweenSeries: string;
     breakBetweenExercises: string;
     trainingGroups: TrainingGroup[];
+    totalTime: number;
 
-    get totalTime(): number {
-        return this.trainingGroups.reduce((sum, tg) => sum + +tg.time * tg.exercises.length, 0);
+    constructor(training: Training) {
+        this.id = training.id ?? GuidGenerator.newGuid();
+        this.name = training.name ?? '';
+        this.description = training.description ?? '';
+        this.breakBetweenExercises = training.breakBetweenExercises ?? '';
+        this.breakBetweenGroups = training.breakBetweenGroups ?? '';
+        this.breakBetweenSeries = training.breakBetweenSeries ?? '';
+        this.trainingGroups = training.trainingGroups ?? [];
+    }
+
+    calculateTotalTime(): void {
+        this.totalTime = this.trainingGroups.reduce((sum, tg) => {
+            const exerciseTimeSum = tg.exercises.reduce((exSum, ex) => exSum + (((+ex.time || +tg.time)) * +tg.numberOfSeries + +this.breakBetweenExercises * (+tg.numberOfSeries - 1)), 0);
+            var totalSum = sum + exerciseTimeSum + +this.breakBetweenGroups + +this.breakBetweenSeries * +tg.numberOfSeries - +this.breakBetweenSeries;
+            
+            if ((+tg.numberOfSeries * tg.exercises.length) % 2 === 0) {
+                totalSum -= +this.breakBetweenExercises;
+            }
+
+            return totalSum;
+        }, 0);
+        this.totalTime -= +this.breakBetweenGroups;
     }
 }
