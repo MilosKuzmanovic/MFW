@@ -7,17 +7,11 @@
       <b>NAPRED</b>
     </ion-button>
   </div>
-
-  <div *ngIf="isFinishedTraining">
-    <div style="position: absolute; margin-left: 50%; margin-top: 25%; transform: translateX(-50%);">
-      <h1><b>KRAJ</b></h1>
-    </div>
-  </div>
   <div *ngIf="isBreak && !isFinishedTraining">
     <div style="position: absolute; margin-left: 50%; transform: translateX(-50%);">
       <h1 style="font-size: 4rem;"><b>PAUZA</b></h1>
     </div>
-    <app-countdown-timer [durationInSeconds]="+currentTime" (onFinish)="moveNext()"></app-countdown-timer>
+    <app-countdown-timer #timer [durationInSeconds]="+currentTime" (onFinish)="moveNext()"></app-countdown-timer>
     <div style="display: flex; flex-direction: column; text-align: center;">
       <h2 style="overflow: hidden; max-height: 120px; font-size: 2rem; margin-top: 40px;"><b style="color: rgb(21, 218, 60);">Sledi:</b>
         {{nextExercise?.name}}</h2>
@@ -38,7 +32,8 @@
         </div>
       </div>
     </div>
-  </div>
+  <span class="goal-time" *ngIf="goalTime"><ion-icon name="time"></ion-icon>{{ goalTime }}</span>
+</div>
   <div *ngIf="!isBreak && !isFinishedTraining">
     <div style="margin-left: 50%; transform: translate(-50%); width: 100vw;">
       <div style="display: flex; flex-direction: column; text-align: center;">
@@ -53,6 +48,11 @@
       </div>
     </div>
     <app-countdown-timer [durationInSeconds]="+currentTime" (onFinish)="moveNext()"></app-countdown-timer>
+  <span class="goal-time" *ngIf="goalTime"><ion-icon name="time"></ion-icon>{{ goalTime }}</span>
+</div>
+  <div *ngIf="isFinishedTraining">
+    <div style="position: absolute; margin-left: 50%; margin-top: 25%; transform: translateX(-50%);">
+      <h1><b>KRAJ</b></h1>
+    </div>
   </div>
-
 </div>

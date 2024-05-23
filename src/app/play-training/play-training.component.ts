@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TrainingService } from '../services/training.service';
 import { Training } from '../models/Training';
@@ -8,6 +8,7 @@ import { GuidGenerator } from '../services/guid-generator';
 import { TrainingsComponent } from '../trainings/trainings.component';
 import { Platform } from '@ionic/angular';
 import { Subscription } from 'rxjs';
+import { CountdownTimerComponent } from '../countdown-timer/countdown-timer.component';
 
 @Component({
   selector: 'app-play-training',
@@ -15,6 +16,8 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./play-training.component.scss'],
 })
 export class PlayTrainingComponent implements OnInit {
+  @ViewChild(CountdownTimerComponent) timer: CountdownTimerComponent;
+
   trainingId: string;
   training: Training;
   currentGroup: TrainingGroup;
@@ -279,5 +282,76 @@ export class PlayTrainingComponent implements OnInit {
     } else {
       this.isBreak = !this.isBreak;
     }
+  }
+
+  get goalTime(): string {
+    if (this.training) {
+      const training = new Training(this.training);
+      training.calculateTotalTime();
+      var time = new Date();
+      time.setSeconds(time.getSeconds() + (training.totalTime - this.getPassedTime())
+        - (+this.currentTime - (this.timer?.remainingTime ?? 0)));
+      return `${time.getHours()}:${time.getMinutes() < 10 ? '0' : ''}${time.getMinutes()}:${time.getSeconds() < 10 ? '0' : ''}${time.getSeconds()}`;
+    }
+
+    return '';
+  }
+
+  getPassedTime(): number {
+    // let passedTime = this.training.trainingGroups.reduce((sum, tg) => {
+    //   const exerciseTimeSum = tg.exercises.reduce((exSum, ex) => exSum + (((+ex.time || +tg.time)) * +tg.numberOfSeries + +this.training.breakBetweenExercises * (+tg.numberOfSeries - 1)), 0);
+    //   var totalSum = sum + exerciseTimeSum + +this.training.breakBetweenGroups + +this.training.breakBetweenSeries * +tg.numberOfSeries - +this.training.breakBetweenSeries;
+
+    //   if ((+tg.numberOfSeries * tg.exercises.length) % 2 === 0) {
+    //     totalSum -= +this.training.breakBetweenExercises;
+    //   }
+
+    //   return totalSum;
+    // }, 0);
+    // passedTime -= +this.training.breakBetweenGroups;
+
+    let passedTime = 0;
+    for (let tg of this.training.trainingGroups) {
+      for (let i = 1; i <= +tg.numberOfSeries; i++) {
+        for (let ex of tg.exercises) {
+          if (ex.id === this.currentExercise.id && i == this.seriesIndex) {
+            if (this.isBreak) return +ex.time + passedTime;
+
+            return passedTime;
+          }
+          if (this.seriesIndex == +tg.numberOfSeries) {
+            passedTime += +ex.time + +this.training.breakBetweenSeries;
+          } else {
+            passedTime += +ex.time + +this.training.breakBetweenExercises;
+          }
+        }
+      }
+      passedTime += +tg.time + +this.training.breakBetweenGroups;
+    }
+
+    return passedTime;
+  }
+
+  convertSeconds(totalSeconds: number) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const remainingSecondsAfterHours = totalSeconds % 3600;
+    const minutes = Math.floor(remainingSecondsAfterHours / 60);
+    const seconds = remainingSecondsAfterHours % 60;
+
+    let formattedTime = '';
+
+    if (hours > 0) {
+      formattedTime += `${hours}h `;
+    }
+
+    if (minutes > 0) {
+      formattedTime += `${minutes}min `;
+    }
+
+    if (seconds > 0 || (hours === 0 && minutes === 0)) {
+      formattedTime += `${seconds}s`;
+    }
+
+    return formattedTime;
   }
 }

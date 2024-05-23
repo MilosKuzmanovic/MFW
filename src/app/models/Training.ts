@@ -21,7 +21,7 @@ export class Training {
         this.trainingGroups = training.trainingGroups ?? [];
     }
 
-    calculateTotalTime(): void {
+    public calculateTotalTime(): void {
         this.totalTime = this.trainingGroups.reduce((sum, tg) => {
             const exerciseTimeSum = tg.exercises.reduce((exSum, ex) => exSum + (((+ex.time || +tg.time)) * +tg.numberOfSeries + +this.breakBetweenExercises * (+tg.numberOfSeries - 1)), 0);
             var totalSum = sum + exerciseTimeSum + +this.breakBetweenGroups + +this.breakBetweenSeries * +tg.numberOfSeries - +this.breakBetweenSeries;
@@ -33,5 +33,13 @@ export class Training {
             return totalSum;
         }, 0);
         this.totalTime -= +this.breakBetweenGroups;
+
+        this.trainingGroups.forEach(tg => {
+            for (let i = 1; i <= +tg.numberOfSeries; i++) {
+                tg.exercises.forEach(ex => {
+                    this.totalTime += 2;
+                })                
+            }
+        })
     }
 }
