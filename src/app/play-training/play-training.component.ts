@@ -291,25 +291,13 @@ export class PlayTrainingComponent implements OnInit {
       var time = new Date();
       time.setSeconds(time.getSeconds() + (training.totalTime - this.getPassedTime())
         - (+this.currentTime - (this.timer?.remainingTime ?? 0)));
-      return `${time.getHours()}:${time.getMinutes() < 10 ? '0' : ''}${time.getMinutes()}:${time.getSeconds() < 10 ? '0' : ''}${time.getSeconds()}`;
+      return `${time.getHours()}:${time.getMinutes() < 10 ? '0' : ''}${time.getMinutes()}`;
     }
 
     return '';
   }
 
   getPassedTime(): number {
-    // let passedTime = this.training.trainingGroups.reduce((sum, tg) => {
-    //   const exerciseTimeSum = tg.exercises.reduce((exSum, ex) => exSum + (((+ex.time || +tg.time)) * +tg.numberOfSeries + +this.training.breakBetweenExercises * (+tg.numberOfSeries - 1)), 0);
-    //   var totalSum = sum + exerciseTimeSum + +this.training.breakBetweenGroups + +this.training.breakBetweenSeries * +tg.numberOfSeries - +this.training.breakBetweenSeries;
-
-    //   if ((+tg.numberOfSeries * tg.exercises.length) % 2 === 0) {
-    //     totalSum -= +this.training.breakBetweenExercises;
-    //   }
-
-    //   return totalSum;
-    // }, 0);
-    // passedTime -= +this.training.breakBetweenGroups;
-
     let passedTime = 0;
     for (let tg of this.training.trainingGroups) {
       for (let i = 1; i <= +tg.numberOfSeries; i++) {
