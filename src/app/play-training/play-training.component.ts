@@ -291,7 +291,7 @@ export class PlayTrainingComponent implements OnInit {
       var time = new Date();
       time.setSeconds(time.getSeconds() + (training.totalTime - this.getPassedTime())
         - (+this.currentTime - (this.timer?.remainingTime ?? 0)));
-      return `${time.getHours()}:${time.getMinutes() < 10 ? '0' : ''}${time.getMinutes()}`;
+      return `${time.getHours()}:${time.getMinutes() < 10 ? '0' : ''}${time.getMinutes()}:${time.getSeconds() < 10 ? '0' : ''}${time.getSeconds()}`;
     }
 
     return '';
