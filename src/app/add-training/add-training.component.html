@@ -40,7 +40,7 @@
           <ion-card color="warning" *ngFor="let exercise of group.exercises">
             <ion-card-content>
               <div style="display: flex; justify-content: flex-end;">
-                <ion-button color="danger" (click)="removeExercise(exercise)">
+                <ion-button color="danger" (click)="removeExercise(exercise, group)">
                   <ion-icon size="large" name="trash-outline"></ion-icon>
                 </ion-button>
               </div>

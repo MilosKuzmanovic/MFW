@@ -6,6 +6,8 @@ import { Training } from '../models/Training';
 import { GuidGenerator } from '../services/guid-generator';
 import { ToastController, Platform } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
+import { BackButtonService } from '../services/back-button.service';
+import { APP_CONSTANTS } from '../constants/app.constants';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -15,13 +17,14 @@ import { Subscription } from 'rxjs';
 })
 export class TrainingsComponent implements OnInit, OnDestroy {
   trainings: Training[] = [];
-  selectedTraining: Training;
-  addingTraining: boolean;
-  reviewing: boolean;
-  selectedTrainingForRemoval: Training;
-  selectedTrainingForReview: Training | undefined;
-  isImporting: boolean;
-  importedTraining: string;
+  selectedTraining: Training | null = null;
+  addingTraining: boolean = false;
+  reviewing: boolean = false;
+  selectedTrainingForRemoval: Training | null = null;
+  selectedTrainingForReview: Training | null = null;
+  isImporting: boolean = false;
+  importedTraining: string = '';
+  isLoading: boolean = false;
   
   private backButtonSubscription: Subscription;
 
@@ -37,7 +40,9 @@ export class TrainingsComponent implements OnInit, OnDestroy {
       text: 'YES',
       cssClass: 'alert-button-confirm',
       handler: () => {
-        this.removeTraining(this.selectedTrainingForRemoval);
+        if (this.selectedTrainingForRemoval) {
+          this.removeTraining(this.selectedTrainingForRemoval);
+        }
       },
     },
   ];
@@ -48,7 +53,8 @@ export class TrainingsComponent implements OnInit, OnDestroy {
     private timeUtils: TimeUtilsService,
     private toast: ToastController,
     private sanitizer: DomSanitizer,
-    private platform: Platform
+    private platform: Platform,
+    private backButtonService: BackButtonService
   ) {}
 
   ngOnInit(): void {
@@ -56,32 +62,24 @@ export class TrainingsComponent implements OnInit, OnDestroy {
   }
 
   ionViewDidEnter(): void {
-    // Registruj back button behavior kada se stranica učita
-    this.platform.ready().then(() => {
-      this.backButtonSubscription = this.platform.backButton.subscribeWithPriority(10, () => {
-        this.handleBackButton();
-      });
-    });
+    this.backButtonService.registerBackButton(APP_CONSTANTS.ROUTES.TRAININGS);
   }
 
   ngOnDestroy(): void {
-    // Ukloni registraciju back button-a
-    if (this.backButtonSubscription) {
-      this.backButtonSubscription.unsubscribe();
-    }
+    this.backButtonService.unregisterBackButton();
   }
 
-  private handleBackButton(): void {
-    // Prikaži potvrdu za izlazak iz aplikacije
-    if (confirm('Da li stvarno želiš da izađeš iz aplikacije?')) {
-      // Ako korisnik potvrdi, izađi iz aplikacije
-      (navigator as any)['app']?.exitApp();
+  loadTrainings(): void {
+    try {
+      this.isLoading = true;
+      this.trainings = this.trainingService.getTrainings();
+      console.log('Loaded trainings:', this.trainings);
+    } catch (error) {
+      console.error('Error loading trainings:', error);
+      this.showToast(APP_CONSTANTS.MESSAGES.ERROR.TRAINING_LOAD_FAILED, 'danger');
+    } finally {
+      this.isLoading = false;
     }
-  }
-
-  loadTrainings() {
-    this.trainings = this.trainingService.getTrainings();
-    console.log(this.trainings)
   }
 
   editTraining(training: Training): void {
@@ -130,7 +128,7 @@ export class TrainingsComponent implements OnInit, OnDestroy {
         training.name = `${training.name}_COPY`;
       }
   
-      training.id = GuidGenerator.newGuid();
+      (training as any).id = GuidGenerator.newGuid();
   
       this.trainingService.addTraining(training);
       this.trainings = this.trainingService.getTrainings();
@@ -171,17 +169,21 @@ export class TrainingsComponent implements OnInit, OnDestroy {
     return this.timeUtils.formatTimeReadable(totalSeconds);
   }
 
-  async removeTraining(training: Training) {
-    this.trainingService.removeTraining(training);
-    this.loadTrainings();
+  async removeTraining(training: Training): Promise<void> {
+    if (!training) return;
 
-    const toast = await this.toast.create({
-      message: 'Uspesno obrisan trening!',
-      duration: 1500,
-      position: 'middle',
-    });
-
-    await toast.present();
+    try {
+      const success = this.trainingService.removeTraining(training);
+      if (success) {
+        this.loadTrainings();
+        await this.showToast(APP_CONSTANTS.MESSAGES.SUCCESS.TRAINING_DELETED);
+      } else {
+        await this.showToast(APP_CONSTANTS.MESSAGES.ERROR.TRAINING_SAVE_FAILED, 'danger');
+      }
+    } catch (error) {
+      console.error('Error removing training:', error);
+      await this.showToast(APP_CONSTANTS.MESSAGES.ERROR.TRAINING_SAVE_FAILED, 'danger');
+    }
   }
 
   async onFinish() {
@@ -197,9 +199,24 @@ export class TrainingsComponent implements OnInit, OnDestroy {
     await toast.present();
   }
 
-  playTraining(training: Training) {
-    this.router.navigate(['play-training'], {
+  playTraining(training: Training): void {
+    this.router.navigate([APP_CONSTANTS.ROUTES.PLAY_TRAINING], {
       queryParams: { trainingId: training.id },
     });
+  }
+
+  getTotalExercises(training: Training): number {
+    if (!training.trainingGroups) return 0;
+    return training.trainingGroups.reduce((total, group) => total + (group.exercises?.length || 0), 0);
+  }
+
+  private async showToast(message: string, color: string = 'success'): Promise<void> {
+    const toast = await this.toast.create({
+      message,
+      duration: APP_CONSTANTS.TIMING.TOAST_DURATION,
+      position: APP_CONSTANTS.TIMING.TOAST_POSITION,
+      color
+    });
+    await toast.present();
   }
 }

@@ -14,7 +14,7 @@
 <ion-content [fullscreen]="true">
   <div [hidden]="addingTraining || reviewing">
     <ion-card *ngFor="let training of trainings" style="color: white; background-color: rgb(55, 47, 47);"
-      class="clickable">
+      class="training-card clickable">
 
       <ion-card-header (click)="editTraining(training)">
         <ion-card-title style="color: white;">
@@ -50,12 +50,12 @@
             Export
           </ion-button>
         </div>
-        <ion-button
-          style="position: absolute; top: 2px; right: 2px;"
-          color="danger" id="remove-alert-{{training.id}}" (click)="selectedTrainingForRemoval = training">
-          <ion-icon size="small" name="trash-outline"></ion-icon>
-        </ion-button>
       </div>
+      <ion-button
+        style="position: absolute; top: 2px; right: 2px;"
+        color="danger" id="remove-alert-{{training.id}}" (click)="selectedTrainingForRemoval = training">
+        <ion-icon size="small" name="trash-outline"></ion-icon>
+      </ion-button>
 
       <ion-alert trigger="remove-alert-{{training.id}}" class="custom-alert"
         header="Da li si siguran da želiš da obrišeš trening?" [buttons]="alertButtons"></ion-alert>
@@ -90,12 +90,12 @@
   </div>
 
   <app-add-training [hidden]="!addingTraining || reviewing" [isEdit]="!!selectedTraining"
-    [trainingDetails]="selectedTraining" (trainingSaved)="onFinish()"
+    [trainingDetails]="selectedTraining!" (trainingSaved)="onFinish()"
     (getBack)="this.addingTraining = false"></app-add-training>
 
   <div *ngIf="reviewing && selectedTrainingForReview">
     <ion-button color="danger" expand="full"
-      (click)="reviewing = false; selectedTrainingForReview = undefined;">Nazad</ion-button>
+      (click)="reviewing = false; selectedTrainingForReview = null;">Nazad</ion-button>
 
     <div style="margin-left: 10px; letter-spacing: 1px; text-align: justify;">
       <h1 style="text-decoration: underline; text-underline-offset: 7px;">Trening</h1>
@@ -110,7 +110,7 @@
     </div>
 
     <ion-card *ngFor="let group of selectedTrainingForReview.trainingGroups"
-      style="color: white; background-color: rgb(55, 47, 47);" class="clickable">
+      style="color: white; background-color: rgb(55, 47, 47);" class="training-card clickable">
       <ion-card-content style="letter-spacing: 1px; text-align: justify;">
         <h1 style="text-decoration: underline; text-underline-offset: 7px;">Grupa</h1>
         <div><b>Naziv grupe:</b> {{ group.name }}</div>

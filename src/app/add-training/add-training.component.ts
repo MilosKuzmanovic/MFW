@@ -1,11 +1,14 @@
 import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { TrainingService } from '../services/training.service';
-import { Training } from '../models/Training';
-import { TrainingGroup } from '../models/TrainingGroup';
+import { Training, ITrainingData } from '../models/Training';
+import { TrainingGroup, ITrainingGroupData } from '../models/TrainingGroup';
 import { ToastController, Platform } from '@ionic/angular';
-import { Exercise } from '../models/Exercise';
+import { Exercise, IExerciseData } from '../models/Exercise';
 import { GuidGenerator } from '../services/guid-generator';
+import { BackButtonService } from '../services/back-button.service';
+import { APP_CONSTANTS } from '../constants/app.constants';
+import { IValidationResult, IToastOptions } from '../interfaces';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -14,17 +17,19 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./add-training.component.scss'],
 })
 export class AddTrainingComponent implements OnInit, OnDestroy {
-  @Input() isEdit: boolean;
+  @Input() isEdit: boolean = false;
   @Output() trainingSaved: EventEmitter<boolean> = new EventEmitter();
   @Output() getBack: EventEmitter<boolean> = new EventEmitter();
 
   private backButtonSubscription: Subscription;
   private _trainingDetails: Training;
+  public validationErrors: { [key: string]: string } = {};
+  public isSubmitting: boolean = false;
 
   @Input()
   set trainingDetails(training: Training) {
     this._trainingDetails = training;
-    this._trainingDetails?.trainingGroups?.forEach(tg => tg.exercises?.forEach(te => te.time ??= tg.time));
+    this.initializeExerciseTimes();
   }
 
   get trainingDetails(): Training {
@@ -52,185 +57,188 @@ export class AddTrainingComponent implements OnInit, OnDestroy {
     private trainingService: TrainingService,
     private toast: ToastController,
     private router: Router,
-    private platform: Platform
+    private platform: Platform,
+    private backButtonService: BackButtonService
   ) {
   }
 
   ngOnInit() {
-    // Back button će se registrovati u ionViewDidEnter
+    this.initializeTraining();
   }
 
   ionViewDidEnter(): void {
-    // Registruj back button behavior kada se stranica učita
-    this.platform.ready().then(() => {
-      this.backButtonSubscription = this.platform.backButton.subscribeWithPriority(10, () => {
-        this.handleBackButton();
-      });
+    this.backButtonService.registerBackButton('/add-training', () => {
+      this.handleBackButton();
     });
   }
 
   ngOnDestroy() {
-    // Ukloni registraciju back button-a
-    if (this.backButtonSubscription) {
-      this.backButtonSubscription.unsubscribe();
+    this.backButtonService.unregisterBackButton();
+  }
+
+  private initializeTraining(): void {
+    if (!this.trainingDetails) {
+      this.trainingDetails = new Training();
     }
   }
 
-  private handleBackButton() {
-    // Navigate back to trainings list instead of browser history
-    this.router.navigate(['/trainings']);
-  }
-
-  addGroup(): void {
-    this.trainingDetails.trainingGroups.push({
-      id: GuidGenerator.newGuid(),
-      order: (this.trainingDetails.trainingGroups.length + 1).toString(),
-      numberOfSeries: '',
-      name: '',
-      time: '',
-      description: '',
-      exercises: [],
+  private initializeExerciseTimes(): void {
+    this.trainingDetails?.trainingGroups?.forEach(group => {
+      group.exercises?.forEach(exercise => {
+        if (!exercise.time) {
+          exercise.time = group.time;
+        }
+      });
     });
   }
 
+  private handleBackButton(): void {
+    this.router.navigate([APP_CONSTANTS.ROUTES.TRAININGS]);
+  }
+
+  addGroup(): void {
+    const groupData: ITrainingGroupData = {
+      id: GuidGenerator.newGuid(),
+      order: (this.trainingDetails.trainingGroups.length + 1).toString(),
+      numberOfSeries: '1',
+      name: '',
+      time: '0',
+      description: '',
+      exercises: [],
+    };
+    
+    this.trainingDetails.trainingGroups.push(new TrainingGroup(groupData));
+  }
+
   addExercise(group: TrainingGroup): void {
-    group.exercises.push({
+    const exerciseData: IExerciseData = {
       id: GuidGenerator.newGuid(),
       order: (group.exercises.length + 1).toString(),
       name: '',
       description: '',
-      time: group.time
-    });
+      time: group.time || '0'
+    };
+    
+    group.exercises.push(new Exercise(exerciseData));
   }
 
-  async saveTraining() {
-    if (
-      !this.trainingDetails.name ||
-      !this.trainingDetails.breakBetweenGroups ||
-      !this.trainingDetails.breakBetweenExercises
-    ) {
-      const toast = await this.toast.create({
-        message: 'Popuni naziv i pauzu za trening!',
-        duration: 1500,
-        position: 'middle',
-      });
+  async saveTraining(): Promise<void> {
+    this.isSubmitting = true;
+    this.validationErrors = {};
 
-      await toast.present();
-
+    const validationResult = this.validateForm();
+    if (!validationResult.isValid) {
+      this.validationErrors = validationResult.errors;
+      this.isSubmitting = false;
       return;
     }
 
-    if (
-      !this.trainingDetails.trainingGroups ||
-      this.trainingDetails.trainingGroups.length == 0
-    ) {
-      const toast = await this.toast.create({
-        message: 'Dodaj grupu treninga!',
-        duration: 1500,
-        position: 'middle',
-      });
+    try {
+      this.trainingDetails.calculateTotalTime();
+      
+      const success = this.isEdit 
+        ? this.trainingService.editTraining(this.trainingDetails)
+        : this.trainingService.addTraining(this.trainingDetails);
 
-      await toast.present();
+      if (success) {
+        await this.showToast(
+          this.isEdit 
+            ? APP_CONSTANTS.MESSAGES.SUCCESS.TRAINING_UPDATED 
+            : APP_CONSTANTS.MESSAGES.SUCCESS.TRAINING_SAVED
+        );
+        this.trainingSaved.emit(true);
+      } else {
+        await this.showToast(APP_CONSTANTS.MESSAGES.ERROR.TRAINING_SAVE_FAILED, 'danger');
+      }
+    } catch (error) {
+      console.error('Error saving training:', error);
+      await this.showToast(APP_CONSTANTS.MESSAGES.ERROR.TRAINING_SAVE_FAILED, 'danger');
+    } finally {
+      this.isSubmitting = false;
+    }
+  }
 
-      return;
+  private validateForm(): IValidationResult {
+    const errors: { [key: string]: string } = {};
+
+    // Validate training name
+    if (!this.trainingDetails.name?.trim()) {
+      errors['trainingName'] = APP_CONSTANTS.MESSAGES.ERROR.REQUIRED_FIELD;
     }
 
-    if (this.trainingDetails.trainingGroups.some((x) => !x.name)) {
-      const toast = await this.toast.create({
-        message: 'Popuni naziv za grupe treninga!',
-        duration: 1500,
-        position: 'middle',
-      });
-
-      await toast.present();
-
-      return;
+    // Validate breaks
+    if (!this.trainingDetails.breakBetweenGroups?.trim()) {
+      errors['breakBetweenGroups'] = APP_CONSTANTS.MESSAGES.ERROR.REQUIRED_FIELD;
     }
 
-    if (
-      this.trainingDetails.trainingGroups.some(
-        (x) => !x.time
-      )
-    ) {
-      const toast = await this.toast.create({
-        message: 'Dodaj vreme trajanja grupe!',
-        duration: 1500,
-        position: 'middle',
-      });
-
-      await toast.present();
-
-      return;
-    }
-    
-    if (
-      this.trainingDetails.trainingGroups.some(
-        (x) => !x.exercises || x.exercises.length == 0
-      )
-    ) {
-      const toast = await this.toast.create({
-        message: 'Dodaj vežbe u grupu treninga!',
-        duration: 1500,
-        position: 'middle',
-      });
-
-      await toast.present();
-
-      return;
+    if (!this.trainingDetails.breakBetweenExercises?.trim()) {
+      errors['breakBetweenExercises'] = APP_CONSTANTS.MESSAGES.ERROR.REQUIRED_FIELD;
     }
 
-    if (
-      this.trainingDetails.trainingGroups.some((x) =>
-        x.exercises.some((y) => !y.name)
-      )
-    ) {
-      const toast = await this.toast.create({
-        message: 'Popuni naziv za vežbe!',
-        duration: 1500,
-        position: 'middle',
-      });
-
-      await toast.present();
-
-      return;
-    }
-
-    if (
-      this.trainingDetails.trainingGroups.some(
-        (x) => x.exercises.some(ex => !ex.time)
-      )
-    ) {
-      const toast = await this.toast.create({
-        message: 'Dodaj vreme trajanja vežbe!',
-        duration: 1500,
-        position: 'middle',
-      });
-
-      await toast.present();
-
-      return;
-    }
-    
-    const training = new Training(this.trainingDetails);
-    training.calculateTotalTime();
-
-    if (this.isEdit) {
-      this.trainingService.editTraining(training);
+    // Validate groups
+    if (!this.trainingDetails.trainingGroups?.length) {
+      errors['trainingGroups'] = 'Dodaj grupu treninga!';
     } else {
-      this.trainingService.addTraining(training);
+      this.trainingDetails.trainingGroups.forEach((group, groupIndex) => {
+        if (!group.name?.trim()) {
+          errors[`groupName_${groupIndex}`] = 'Popuni naziv za grupe treninga!';
+        }
+
+        if (!group.numberOfSeries?.trim()) {
+          errors[`groupSeries_${groupIndex}`] = 'Popuni broj ponavljanja za grupe treninga!';
+        }
+
+        if (!group.time?.trim()) {
+          errors[`groupTime_${groupIndex}`] = 'Popuni vreme za grupe treninga!';
+        }
+
+        if (!group.exercises?.length) {
+          errors[`groupExercises_${groupIndex}`] = 'Dodaj vežbe za grupe treninga!';
+        } else {
+          group.exercises.forEach((exercise, exerciseIndex) => {
+            if (!exercise.name?.trim()) {
+              errors[`exerciseName_${groupIndex}_${exerciseIndex}`] = 'Popuni naziv za vežbe!';
+            }
+          });
+        }
+      });
     }
 
-    this.trainingSaved.emit(true);
+    return {
+      isValid: Object.keys(errors).length === 0,
+      errors
+    };
   }
 
-  removeGroup(group: TrainingGroup) {
-    this.trainingDetails.trainingGroups =
-      this.trainingDetails.trainingGroups.filter((x) => x.id !== group.id);
+  public getValidationError(field: string): string {
+    return this.validationErrors[field] || '';
   }
 
-  removeExercise(exercise: Exercise) {
-    this.trainingDetails.trainingGroups.forEach((group) => {
-      group.exercises = group.exercises.filter((x) => x.id !== exercise.id);
+  public hasValidationError(field: string): boolean {
+    return !!this.validationErrors[field];
+  }
+
+  removeGroup(group: TrainingGroup): void {
+    const index = this.trainingDetails.trainingGroups.indexOf(group);
+    if (index > -1) {
+      this.trainingDetails.trainingGroups.splice(index, 1);
+    }
+  }
+
+  removeExercise(exercise: Exercise, group: TrainingGroup): void {
+    const index = group.exercises.indexOf(exercise);
+    if (index > -1) {
+      group.exercises.splice(index, 1);
+    }
+  }
+
+  private async showToast(message: string, color: string = 'success'): Promise<void> {
+    const toast = await this.toast.create({
+      message,
+      duration: APP_CONSTANTS.TIMING.TOAST_DURATION,
+      position: APP_CONSTANTS.TIMING.TOAST_POSITION,
+      color
     });
+    await toast.present();
   }
 }
