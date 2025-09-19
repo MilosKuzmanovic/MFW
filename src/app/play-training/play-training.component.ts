@@ -29,6 +29,9 @@ export class PlayTrainingComponent implements OnInit, OnDestroy {
   groupIndex: number = 0;
   seriesIndex: number = 1;
   isFinishedTraining: boolean;
+  isPaused: boolean = false;
+  pauseStartTime: Date | null = null;
+  totalPauseTime: number = 0; // Total paused time in seconds
   wakeLock: any;
 
   private resumeSubscription: Subscription;
@@ -297,42 +300,93 @@ export class PlayTrainingComponent implements OnInit, OnDestroy {
     const training = new Training(this.training);
     training.calculateTotalTime();
     
-    const remainingTime = this.timer?.remainingTime ?? this.timeUtils.timeStringToSeconds(this.currentTime);
-    const totalRemainingTime = training.totalTime - this.getPassedTime() - (this.timeUtils.timeStringToSeconds(this.currentTime) - remainingTime);
+    // Get current remaining time from timer
+    const currentRemainingTime = this.timer?.remainingTime ?? this.timeUtils.timeStringToSeconds(this.currentTime);
+    
+    // Calculate total remaining time
+    const totalRemainingTime = this.calculateTotalRemainingTime() + this.totalPauseTime;
     
     return this.timeUtils.getTimePlusSeconds(totalRemainingTime);
+  }
+
+  private calculateTotalRemainingTime(): number {
+    if (!this.training) return 0;
+
+    let remainingTime = 0;
+    
+    // Add remaining time for current exercise/break
+    const currentRemainingTime = this.timer?.remainingTime ?? this.timeUtils.timeStringToSeconds(this.currentTime);
+    remainingTime += currentRemainingTime;
+    
+    // Add time for all remaining exercises and breaks
+    for (let groupIndex = this.groupIndex; groupIndex < this.training.trainingGroups.length; groupIndex++) {
+      const group = this.training.trainingGroups[groupIndex];
+      
+      for (let seriesIndex = (groupIndex === this.groupIndex ? this.seriesIndex : 1); 
+           seriesIndex <= +group.numberOfSeries; seriesIndex++) {
+        
+        for (let exerciseIndex = (groupIndex === this.groupIndex && seriesIndex === this.seriesIndex ? this.exerciseIndex : 0); 
+             exerciseIndex < group.exercises.length; exerciseIndex++) {
+          
+          // Skip current exercise if we're in the middle of it
+          if (groupIndex === this.groupIndex && seriesIndex === this.seriesIndex && exerciseIndex === this.exerciseIndex) {
+            continue;
+          }
+          
+          const exercise = group.exercises[exerciseIndex];
+          const exerciseTime = this.timeUtils.timeStringToSeconds(exercise.time || group.time);
+          remainingTime += exerciseTime;
+          
+          // Add break between exercises (except for last exercise in last series)
+          if (!(exerciseIndex === group.exercises.length - 1 && seriesIndex === +group.numberOfSeries)) {
+            remainingTime += this.timeUtils.timeStringToSeconds(this.training.breakBetweenExercises);
+          }
+        }
+        
+        // Add break between series (except for last series)
+        if (seriesIndex < +group.numberOfSeries) {
+          remainingTime += this.timeUtils.timeStringToSeconds(this.training.breakBetweenSeries);
+        }
+      }
+      
+      // Add break between groups (except for last group)
+      if (groupIndex < this.training.trainingGroups.length - 1) {
+        remainingTime += this.timeUtils.timeStringToSeconds(this.training.breakBetweenGroups);
+      }
+    }
+    
+    return remainingTime;
   }
 
   getPassedTime(): number {
     if (!this.training) return 0;
 
-    let passedTime = 0;
-    for (let tg of this.training.trainingGroups) {
-      for (let i = 1; i <= +tg.numberOfSeries; i++) {
-        for (let ex of tg.exercises) {
-          if (ex.id === this.currentExercise.id && i === this.seriesIndex) {
-            if (this.isBreak) {
-              return this.timeUtils.timeStringToSeconds(ex.time || tg.time) + passedTime;
-            }
-            return passedTime;
-          }
-          if (this.seriesIndex === +tg.numberOfSeries) {
-            passedTime += this.timeUtils.timeStringToSeconds(ex.time || tg.time) + 
-                         this.timeUtils.timeStringToSeconds(this.training.breakBetweenSeries);
-          } else {
-            passedTime += this.timeUtils.timeStringToSeconds(ex.time || tg.time) + 
-                         this.timeUtils.timeStringToSeconds(this.training.breakBetweenExercises);
-          }
-        }
-      }
-      passedTime += this.timeUtils.timeStringToSeconds(tg.time) + 
-                   this.timeUtils.timeStringToSeconds(this.training.breakBetweenGroups);
-    }
-
-    return passedTime;
+    const training = new Training(this.training);
+    training.calculateTotalTime();
+    
+    const totalRemainingTime = this.calculateTotalRemainingTime();
+    return training.totalTime - totalRemainingTime;
   }
 
   convertSeconds(totalSeconds: number) {
     return this.timeUtils.formatTimeReadable(totalSeconds);
+  }
+
+  togglePause() {
+    if (this.isPaused) {
+      // Resume training
+      this.isPaused = false;
+      if (this.pauseStartTime) {
+        const pauseDuration = Math.floor((new Date().getTime() - this.pauseStartTime.getTime()) / 1000);
+        this.totalPauseTime += pauseDuration;
+        this.pauseStartTime = null;
+        console.log(`Resumed after ${pauseDuration}s pause. Total pause time: ${this.totalPauseTime}s`);
+      }
+    } else {
+      // Pause training
+      this.isPaused = true;
+      this.pauseStartTime = new Date();
+      console.log('Training paused');
+    }
   }
 }

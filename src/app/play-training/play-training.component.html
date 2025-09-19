@@ -11,7 +11,7 @@
     <div style="position: absolute; margin-left: 50%; transform: translateX(-50%);">
       <h1 style="font-size: 4rem;"><b>PAUZA</b></h1>
     </div>
-    <app-countdown-timer #timer [durationInSeconds]="+currentTime" (onFinish)="moveNext()"></app-countdown-timer>
+    <app-countdown-timer #timer [durationInSeconds]="+currentTime" [isPaused]="isPaused" (onFinish)="moveNext()"></app-countdown-timer>
     <div style="display: flex; flex-direction: column; text-align: center;">
       <h2 style="overflow: hidden; max-height: 120px; font-size: 2rem; margin-top: 40px;"><b style="color: rgb(21, 218, 60);">Sledi:</b>
         {{nextExercise?.name}}</h2>
@@ -47,12 +47,22 @@
           {{seriesIndex}}/{{currentGroup.numberOfSeries}}</h2>
       </div>
     </div>
-    <app-countdown-timer [durationInSeconds]="+currentTime" (onFinish)="moveNext()"></app-countdown-timer>
+    <app-countdown-timer [durationInSeconds]="+currentTime" [isPaused]="isPaused" (onFinish)="moveNext()"></app-countdown-timer>
   <span class="goal-time" *ngIf="goalTime"><ion-icon name="time"></ion-icon>{{ goalTime }}</span>
 </div>
   <div *ngIf="isFinishedTraining">
     <div style="position: absolute; margin-left: 50%; margin-top: 25%; transform: translateX(-50%);">
       <h1><b>KRAJ</b></h1>
     </div>
+  </div>
+
+  <!-- Pause Button -->
+  <div *ngIf="!isFinishedTraining" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000;">
+    <ion-button 
+      (click)="togglePause()" 
+      [color]="isPaused ? 'success' : 'warning'"
+      style="width: 60px; height: 60px; border-radius: 50%; --padding-start: 0; --padding-end: 0;">
+      <ion-icon [name]="isPaused ? 'play' : 'pause'" style="font-size: 24px;"></ion-icon>
+    </ion-button>
   </div>
 </div>

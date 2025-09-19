@@ -8,6 +8,7 @@ import { Subscription, timer } from 'rxjs';
 })
 export class CountdownTimerComponent implements OnInit, OnDestroy, OnChanges {
   @Input() durationInSeconds: number = 60;
+  @Input() isPaused: boolean = false;
   @Output() onFinish: EventEmitter<boolean> = new EventEmitter();
   displayTime: string = '';
   private subscription: Subscription;
@@ -16,6 +17,7 @@ export class CountdownTimerComponent implements OnInit, OnDestroy, OnChanges {
   alertClass: string;
   remainingTime: number;
   private beepPlayed: Set<number> = new Set();
+  private isTimerRunning: boolean = false;
 
   ngOnInit() {
     this.initializeAudio();
@@ -43,6 +45,14 @@ export class CountdownTimerComponent implements OnInit, OnDestroy, OnChanges {
       this.beepPlayed.clear(); // Reset beep tracking
       this.startTimer();
     }
+    
+    if (changes['isPaused']) {
+      if (this.isPaused) {
+        this.pauseTimer();
+      } else {
+        this.resumeTimer();
+      }
+    }
   }
 
   ngOnDestroy() {
@@ -52,10 +62,13 @@ export class CountdownTimerComponent implements OnInit, OnDestroy, OnChanges {
   private startTimer() {
     this.remainingTime = this.durationInSeconds;
     this.beepPlayed.clear();
+    this.isTimerRunning = true;
 
     const timer$ = timer(0, 1000);
-    this.subscription = timer$.subscribe((tick) => {
-      this.remainingTime = this.durationInSeconds - tick;
+    this.subscription = timer$.subscribe(() => {
+      if (!this.isTimerRunning) return; // Don't count down when paused
+      
+      this.remainingTime--;
       this.displayTime = this.formatTime(this.remainingTime);
 
       if (this.remainingTime <= 10 && this.remainingTime > 0) {
@@ -75,6 +88,14 @@ export class CountdownTimerComponent implements OnInit, OnDestroy, OnChanges {
         this.subscription.unsubscribe();
       }
     });
+  }
+
+  private pauseTimer() {
+    this.isTimerRunning = false;
+  }
+
+  private resumeTimer() {
+    this.isTimerRunning = true;
   }
 
   private playBeep() {
