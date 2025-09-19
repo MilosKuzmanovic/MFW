@@ -38,3 +38,103 @@ ion-button[color="danger"] {
   --background: linear-gradient(135deg, #f44336 0%, #ef5350 100%);
   --box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
 }
+
+// Header pulse icon with gradient
+.header-pulse-icon {
+  background: linear-gradient(90deg, #ff6b9d, #c44569, #f8b500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 1.4rem; // Ista veličina kao fitness ikona u karticama
+}
+
+// Bottom actions styling
+.bottom-actions {
+  margin: 0 16px 20px 16px; // Isti margin kao kartice
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.action-button {
+  height: 50px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: none;
+  --border-radius: 25px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px; // Povećao razmak između ikonice i teksta
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.export-import-container {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  
+  .export-button,
+  .import-button {
+    flex: 1; // Oba dugmića će zauzeti jednak prostor
+    height: 50px;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: none;
+    --border-radius: 25px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+}
+
+.button-icon {
+  font-size: 1.1rem;
+  margin-right: 4px; // Dodatni razmak za ikonicu
+}
+
+// Import item styling
+.import-item {
+  margin: 16px;
+  border-radius: 12px;
+  --background: rgba(255, 255, 255, 0.1);
+  --border-radius: 12px;
+  padding: 16px;
+}
+
+.import-input {
+  --background: rgba(255, 255, 255, 0.9);
+  --color: #2c3e50;
+  --placeholder-color: #7f8c8d;
+  border-radius: 8px;
+  margin-right: 12px;
+}
+
+.finish-button {
+  height: 40px;
+  border-radius: 20px;
+  --border-radius: 20px;
+  font-weight: 600;
+  text-transform: none;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; // Razmak za ikonicu
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
