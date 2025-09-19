@@ -1,29 +1,16 @@
 .countdown-timer {
   display: flex;
   justify-content: center;
-  align-items: flex-end;
+  align-items: center;
   height: 40vh;
 
   span {
     font-size: 5rem;
+    transition: color 0.3s ease;
   }
 }
 
 .time-alert {
-  animation: textAnimation 1s infinite; /* 1s trajanje animacije, infinite se ponavlja beskonačno */
-}
-
-@keyframes textAnimation {
-  0% {
-    font-size: 5rem;
-    color: white;
-  }
-  50% {
-    font-size: 7rem;
-    color: red;
-  }
-  100% {
-    font-size: 5rem;
-    color: white;
-  }
+  color: red !important;
+  font-weight: bold;
 }
