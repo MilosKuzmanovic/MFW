@@ -1,6 +1,7 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TrainingService } from '../services/training.service';
+import { TimeUtilsService } from '../services/time-utils.service';
 import { Training } from '../models/Training';
 import { TrainingGroup } from '../models/TrainingGroup';
 import { Exercise } from '../models/Exercise';
@@ -15,7 +16,7 @@ import { CountdownTimerComponent } from '../countdown-timer/countdown-timer.comp
   templateUrl: './play-training.component.html',
   styleUrls: ['./play-training.component.scss'],
 })
-export class PlayTrainingComponent implements OnInit {
+export class PlayTrainingComponent implements OnInit, OnDestroy {
   @ViewChild(CountdownTimerComponent) timer: CountdownTimerComponent;
 
   trainingId: string;
@@ -36,30 +37,37 @@ export class PlayTrainingComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private trainingService: TrainingService,
+    private timeUtils: TimeUtilsService,
     private platform: Platform
   ) {
-    if ('wakeLock' in navigator) {
-      console.log('wakeLock API is supported');
-    } else {
-      console.log('wakeLock API is not supported');
-    }
+    this.initializeWakeLock();
+  }
 
-    const requestWakeLock = async () => {
+  private async initializeWakeLock() {
+    if ('wakeLock' in navigator) {
+      console.log('Wake Lock API is supported');
+      
       try {
         this.wakeLock = await navigator.wakeLock.request('screen');
-        console.log('Wake Lock acquired');
+        console.log('Wake Lock acquired successfully');
+        
+        this.wakeLock.addEventListener('release', () => {
+          console.log('Wake Lock was released');
+        });
+        
       } catch (err: any) {
-        console.error(`${err.name}, ${err.message}`);
+        console.error('Wake Lock failed:', err.name, err.message);
       }
-    };
-
-    // Pozovite ovu funkciju kada želite da sprečite uspavljivanje uređaja
-    requestWakeLock();
+    } else {
+      console.log('Wake Lock API is not supported');
+    }
   }
 
   ngOnInit() {
     this.resumeSubscription = this.platform.resume.subscribe(() => {
       console.log('Device resumed');
+      // Re-acquire wake lock when device resumes
+      this.initializeWakeLock();
     });
 
     this.pauseSubscription = this.platform.pause.subscribe(() => {
@@ -97,17 +105,16 @@ export class PlayTrainingComponent implements OnInit {
       this.pauseSubscription.unsubscribe();
     }
 
-    const releaseWakeLock = () => {
-      if (this.wakeLock !== null) {
-        this.wakeLock.release().then(() => {
-          this.wakeLock = null;
-          console.log('Wake Lock released');
-        });
-      }
-    };
+    this.releaseWakeLock();
+  }
 
-    // Pozovite ovu funkciju kada želite da dozvolite uspavljivanje uređaja
-    releaseWakeLock();
+  private releaseWakeLock() {
+    if (this.wakeLock !== null) {
+      this.wakeLock.release().then(() => {
+        this.wakeLock = null;
+        console.log('Wake Lock released');
+      });
+    }
   }
 
   moveNext() {
@@ -285,61 +292,47 @@ export class PlayTrainingComponent implements OnInit {
   }
 
   get goalTime(): string {
-    if (this.training) {
-      const training = new Training(this.training);
-      training.calculateTotalTime();
-      var time = new Date();
-      time.setSeconds(time.getSeconds() + (training.totalTime - this.getPassedTime())
-        - (+this.currentTime - (this.timer?.remainingTime ?? 0)));
-      return `${time.getHours()}:${time.getMinutes() < 10 ? '0' : ''}${time.getMinutes()}:${time.getSeconds() < 10 ? '0' : ''}${time.getSeconds()}`;
-    }
+    if (!this.training) return '';
 
-    return '';
+    const training = new Training(this.training);
+    training.calculateTotalTime();
+    
+    const remainingTime = this.timer?.remainingTime ?? this.timeUtils.timeStringToSeconds(this.currentTime);
+    const totalRemainingTime = training.totalTime - this.getPassedTime() - (this.timeUtils.timeStringToSeconds(this.currentTime) - remainingTime);
+    
+    return this.timeUtils.getTimePlusSeconds(totalRemainingTime);
   }
 
   getPassedTime(): number {
+    if (!this.training) return 0;
+
     let passedTime = 0;
     for (let tg of this.training.trainingGroups) {
       for (let i = 1; i <= +tg.numberOfSeries; i++) {
         for (let ex of tg.exercises) {
-          if (ex.id === this.currentExercise.id && i == this.seriesIndex) {
-            if (this.isBreak) return +ex.time + passedTime;
-
+          if (ex.id === this.currentExercise.id && i === this.seriesIndex) {
+            if (this.isBreak) {
+              return this.timeUtils.timeStringToSeconds(ex.time || tg.time) + passedTime;
+            }
             return passedTime;
           }
-          if (this.seriesIndex == +tg.numberOfSeries) {
-            passedTime += +ex.time + +this.training.breakBetweenSeries;
+          if (this.seriesIndex === +tg.numberOfSeries) {
+            passedTime += this.timeUtils.timeStringToSeconds(ex.time || tg.time) + 
+                         this.timeUtils.timeStringToSeconds(this.training.breakBetweenSeries);
           } else {
-            passedTime += +ex.time + +this.training.breakBetweenExercises;
+            passedTime += this.timeUtils.timeStringToSeconds(ex.time || tg.time) + 
+                         this.timeUtils.timeStringToSeconds(this.training.breakBetweenExercises);
           }
         }
       }
-      passedTime += +tg.time + +this.training.breakBetweenGroups;
+      passedTime += this.timeUtils.timeStringToSeconds(tg.time) + 
+                   this.timeUtils.timeStringToSeconds(this.training.breakBetweenGroups);
     }
 
     return passedTime;
   }
 
   convertSeconds(totalSeconds: number) {
-    const hours = Math.floor(totalSeconds / 3600);
-    const remainingSecondsAfterHours = totalSeconds % 3600;
-    const minutes = Math.floor(remainingSecondsAfterHours / 60);
-    const seconds = remainingSecondsAfterHours % 60;
-
-    let formattedTime = '';
-
-    if (hours > 0) {
-      formattedTime += `${hours}h `;
-    }
-
-    if (minutes > 0) {
-      formattedTime += `${minutes}min `;
-    }
-
-    if (seconds > 0 || (hours === 0 && minutes === 0)) {
-      formattedTime += `${seconds}s`;
-    }
-
-    return formattedTime;
+    return this.timeUtils.formatTimeReadable(totalSeconds);
   }
 }

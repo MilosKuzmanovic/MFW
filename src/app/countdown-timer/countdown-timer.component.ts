@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { Subscription, timer } from 'rxjs';
 
 @Component({
@@ -6,7 +6,7 @@ import { Subscription, timer } from 'rxjs';
   templateUrl: './countdown-timer.component.html',
   styleUrls: ['./countdown-timer.component.scss'],
 })
-export class CountdownTimerComponent implements OnInit, OnDestroy {
+export class CountdownTimerComponent implements OnInit, OnDestroy, OnChanges {
   @Input() durationInSeconds: number = 60;
   @Output() onFinish: EventEmitter<boolean> = new EventEmitter();
   displayTime: string = '';
@@ -15,6 +15,7 @@ export class CountdownTimerComponent implements OnInit, OnDestroy {
   private beepLongAudio: HTMLAudioElement;
   alertClass: string;
   remainingTime: number;
+  private lastBeepTime: number = 0;
 
   ngOnInit() {
     this.beepAudio = new Audio('./assets/beep.mp3');
@@ -22,44 +23,85 @@ export class CountdownTimerComponent implements OnInit, OnDestroy {
     this.startTimer();
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['durationInSeconds'] && !changes['durationInSeconds'].firstChange) {
+      if (this.subscription) {
+        this.subscription.unsubscribe();
+      }
+      this.lastBeepTime = 0; // Reset beep tracking
+      this.startTimer();
+    }
+  }
+
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
 
   private startTimer() {
-    this.durationInSeconds = this.durationInSeconds + 1;
+    this.remainingTime = this.durationInSeconds;
+    this.lastBeepTime = 0;
 
     const timer$ = timer(0, 1000);
     this.subscription = timer$.subscribe((tick) => {
-      const remainingTime = this.durationInSeconds - tick;
-      this.remainingTime = remainingTime - 1;
-      this.displayTime = this.formatTime(remainingTime - 1);
+      this.remainingTime = this.durationInSeconds - tick;
+      this.displayTime = this.formatTime(this.remainingTime);
 
-      if (remainingTime - 1 <= 10 && remainingTime > 1) {
-        this.alertClass = 'time-alert'
-        try {
-          this.beepAudio.play();
-        } catch {
-          this.beepAudio = new Audio('./assets/beep.mp3');
-          this.beepAudio.play();
+      if (this.remainingTime <= 10 && this.remainingTime > 0) {
+        this.alertClass = 'time-alert';
+        // Play beep only once per second and only for specific remaining times
+        if (this.remainingTime !== this.lastBeepTime) {
+          this.playBeep();
+          this.lastBeepTime = this.remainingTime;
         }
       }
   
-      if (remainingTime == 1) {
-        this.beepAudio.pause();
-        try {
-          this.beepLongAudio.play();
-        } catch {
-          this.beepLongAudio = new Audio('./assets/beep.mp3');
-          this.beepLongAudio.play();
-        }
-      }
-
-      if (remainingTime <= 0) {
+      if (this.remainingTime === 0) {
+        this.playBeepLong();
         this.onFinish.emit(true);
         this.subscription.unsubscribe();
       }
     });
+  }
+
+  private playBeep() {
+    try {
+      // Stop any currently playing audio
+      this.beepAudio.pause();
+      this.beepAudio.currentTime = 0;
+      
+      // Play the beep
+      this.beepAudio.play().catch((error) => {
+        console.log('Beep play failed:', error);
+        // Try to reload and play again
+        this.beepAudio.load();
+        this.beepAudio.play().catch(() => {
+          // Final fallback - ignore
+        });
+      });
+    } catch (error) {
+      console.log('Beep error:', error);
+    }
+  }
+
+  private playBeepLong() {
+    try {
+      // Stop any currently playing audio
+      this.beepAudio.pause();
+      this.beepLongAudio.pause();
+      this.beepLongAudio.currentTime = 0;
+      
+      // Play the long beep
+      this.beepLongAudio.play().catch((error) => {
+        console.log('Long beep play failed:', error);
+        // Try to reload and play again
+        this.beepLongAudio.load();
+        this.beepLongAudio.play().catch(() => {
+          // Final fallback - ignore
+        });
+      });
+    } catch (error) {
+      console.log('Long beep error:', error);
+    }
   }
 
   private formatTime(seconds: number): string {
@@ -73,3 +115,4 @@ export class CountdownTimerComponent implements OnInit, OnDestroy {
     return val < 10 ? `0${val}` : `${val}`;
   }
 }
+

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { TrainingService } from '../services/training.service';
+import { TimeUtilsService } from '../services/time-utils.service';
 import { Training } from '../models/Training';
 import { GuidGenerator } from '../services/guid-generator';
 import { ToastController } from '@ionic/angular';
@@ -41,6 +42,7 @@ export class TrainingsComponent implements OnInit {
   constructor(
     private router: Router,
     private trainingService: TrainingService,
+    private timeUtils: TimeUtilsService,
     private toast: ToastController,
     private sanitizer: DomSanitizer
   ) {}
@@ -138,26 +140,7 @@ export class TrainingsComponent implements OnInit {
   }
 
   convertSeconds(totalSeconds: number) {
-    const hours = Math.floor(totalSeconds / 3600);
-    const remainingSecondsAfterHours = totalSeconds % 3600;
-    const minutes = Math.floor(remainingSecondsAfterHours / 60);
-    const seconds = remainingSecondsAfterHours % 60;
-
-    let formattedTime = '';
-
-    if (hours > 0) {
-        formattedTime += `${hours}h `;
-    }
-
-    if (minutes > 0) {
-        formattedTime += `${minutes}min `;
-    }
-
-    if (seconds > 0 || (hours === 0 && minutes === 0)) {
-        formattedTime += `${seconds}s`;
-    }
-
-    return formattedTime;
+    return this.timeUtils.formatTimeReadable(totalSeconds);
   }
 
   async removeTraining(training: Training) {
