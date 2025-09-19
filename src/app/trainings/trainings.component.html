@@ -15,20 +15,38 @@
       class="clickable">
 
       <ion-card-header (click)="editTraining(training)">
-        <ion-card-title style="color: white;">{{ training.name }}</ion-card-title>
+        <ion-card-title style="color: white;">
+          <ion-icon name="fitness" style="margin-right: 8px; color: #ff6b9d;"></ion-icon>
+          {{ training.name }}
+        </ion-card-title>
       </ion-card-header>
 
       <ion-card-content (click)="editTraining(training)">
-        <h2 *ngIf="training.description"><b>Opis treninga:</b> {{ training.description }}</h2>
-        <h2 *ngIf="training.totalTime"><b>Trajanje treninga:</b> {{ convertSeconds(training.totalTime) }}</h2>
+        <h2 *ngIf="training.description">
+          <ion-icon name="document-text" style="margin-right: 6px; color: #7f8c8d;"></ion-icon>
+          <b>Opis treninga:</b> {{ training.description }}
+        </h2>
+        <h2 *ngIf="training.totalTime">
+          <ion-icon name="time" style="margin-right: 6px; color: #7f8c8d;"></ion-icon>
+          <b>Trajanje treninga:</b> {{ convertSeconds(training.totalTime) }}
+        </h2>
       </ion-card-content>
 
       <div>
         <div style="width: 100%; font-size: 10px;">
           <ion-button style="width: 32%; height: 80%;" color="success"
-            (click)="playTraining(training)">Treniraj</ion-button>
-          <ion-button style="width: 32%; height: 80%;" color="warning" (click)="review(training)">Pregled</ion-button>
-          <ion-button style="width: 32%; height: 80%;" color="primary" (click)="export(training)">Export</ion-button>
+            (click)="playTraining(training)">
+            <ion-icon name="play" style="margin-right: 4px;"></ion-icon>
+            Treniraj
+          </ion-button>
+          <ion-button style="width: 32%; height: 80%;" color="warning" (click)="review(training)">
+            <ion-icon name="eye" style="margin-right: 4px;"></ion-icon>
+            Pregled
+          </ion-button>
+          <ion-button style="width: 32%; height: 80%;" color="primary" (click)="export(training)">
+            <ion-icon name="download" style="margin-right: 4px;"></ion-icon>
+            Export
+          </ion-button>
         </div>
         <ion-button
           style="position: absolute; top: 2px; right: 2px;"

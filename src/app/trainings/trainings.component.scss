@@ -1,3 +1,40 @@
 .clickable {
   cursor: pointer;
 }
+
+// Blage izmene - dodajemo narandžastu liniju na vrh kartice
+ion-card {
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #ff6b9d, #ff8c42, #ffa726);
+    border-radius: 4px 4px 0 0;
+  }
+}
+
+// Blagi prelivi na dugmićima
+ion-button[color="success"] {
+  --background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+  --box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+ion-button[color="warning"] {
+  --background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+  --box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+}
+
+ion-button[color="primary"] {
+  --background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+  --box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+ion-button[color="danger"] {
+  --background: linear-gradient(135deg, #f44336 0%, #ef5350 100%);
+  --box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+}
