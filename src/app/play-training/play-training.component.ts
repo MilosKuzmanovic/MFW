@@ -1,5 +1,6 @@
 import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { TrainingService } from '../services/training.service';
 import { TimeUtilsService } from '../services/time-utils.service';
 import { Training } from '../models/Training';
@@ -36,9 +37,12 @@ export class PlayTrainingComponent implements OnInit, OnDestroy {
 
   private resumeSubscription: Subscription;
   private pauseSubscription: Subscription;
+  private backButtonSubscription: Subscription;
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
+    private location: Location,
     private trainingService: TrainingService,
     private timeUtils: TimeUtilsService,
     private platform: Platform
@@ -77,6 +81,8 @@ export class PlayTrainingComponent implements OnInit, OnDestroy {
       console.log('Device paused');
     });
 
+    // Back button će se registrovati u ionViewDidEnter
+
     this.trainingId = this.route.snapshot.queryParams['trainingId'];
 
     if (this.trainingId) {
@@ -100,12 +106,24 @@ export class PlayTrainingComponent implements OnInit, OnDestroy {
     }
   }
 
+  ionViewDidEnter(): void {
+    // Registruj back button behavior kada se stranica učita
+    this.platform.ready().then(() => {
+      this.backButtonSubscription = this.platform.backButton.subscribeWithPriority(10, () => {
+        this.handleBackButton();
+      });
+    });
+  }
+
   ngOnDestroy() {
     if (this.resumeSubscription) {
       this.resumeSubscription.unsubscribe();
     }
     if (this.pauseSubscription) {
       this.pauseSubscription.unsubscribe();
+    }
+    if (this.backButtonSubscription) {
+      this.backButtonSubscription.unsubscribe();
     }
 
     this.releaseWakeLock();
@@ -388,5 +406,10 @@ export class PlayTrainingComponent implements OnInit, OnDestroy {
       this.pauseStartTime = new Date();
       console.log('Training paused');
     }
+  }
+
+  private handleBackButton() {
+    // Navigate back to trainings list instead of browser history
+    this.router.navigate(['/trainings']);
   }
 }

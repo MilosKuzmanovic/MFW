@@ -1,18 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { TrainingService } from '../services/training.service';
 import { TimeUtilsService } from '../services/time-utils.service';
 import { Training } from '../models/Training';
 import { GuidGenerator } from '../services/guid-generator';
-import { ToastController } from '@ionic/angular';
+import { ToastController, Platform } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-trainings',
   templateUrl: './trainings.component.html',
   styleUrls: ['./trainings.component.scss'],
 })
-export class TrainingsComponent implements OnInit {
+export class TrainingsComponent implements OnInit, OnDestroy {
   trainings: Training[] = [];
   selectedTraining: Training;
   addingTraining: boolean;
@@ -21,6 +22,8 @@ export class TrainingsComponent implements OnInit {
   selectedTrainingForReview: Training | undefined;
   isImporting: boolean;
   importedTraining: string;
+  
+  private backButtonSubscription: Subscription;
 
   public alertButtons = [
     {
@@ -44,11 +47,36 @@ export class TrainingsComponent implements OnInit {
     private trainingService: TrainingService,
     private timeUtils: TimeUtilsService,
     private toast: ToastController,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private platform: Platform
   ) {}
 
   ngOnInit(): void {
     this.loadTrainings();
+  }
+
+  ionViewDidEnter(): void {
+    // Registruj back button behavior kada se stranica učita
+    this.platform.ready().then(() => {
+      this.backButtonSubscription = this.platform.backButton.subscribeWithPriority(10, () => {
+        this.handleBackButton();
+      });
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Ukloni registraciju back button-a
+    if (this.backButtonSubscription) {
+      this.backButtonSubscription.unsubscribe();
+    }
+  }
+
+  private handleBackButton(): void {
+    // Prikaži potvrdu za izlazak iz aplikacije
+    if (confirm('Da li stvarno želiš da izađeš iz aplikacije?')) {
+      // Ako korisnik potvrdi, izađi iz aplikacije
+      (navigator as any)['app']?.exitApp();
+    }
   }
 
   loadTrainings() {

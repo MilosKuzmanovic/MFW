@@ -1,21 +1,24 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { TrainingService } from '../services/training.service';
 import { Training } from '../models/Training';
 import { TrainingGroup } from '../models/TrainingGroup';
-import { ToastController } from '@ionic/angular';
+import { ToastController, Platform } from '@ionic/angular';
 import { Exercise } from '../models/Exercise';
 import { GuidGenerator } from '../services/guid-generator';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-add-training',
   templateUrl: './add-training.component.html',
   styleUrls: ['./add-training.component.scss'],
 })
-export class AddTrainingComponent {
+export class AddTrainingComponent implements OnInit, OnDestroy {
   @Input() isEdit: boolean;
   @Output() trainingSaved: EventEmitter<boolean> = new EventEmitter();
   @Output() getBack: EventEmitter<boolean> = new EventEmitter();
 
+  private backButtonSubscription: Subscription;
   private _trainingDetails: Training;
 
   @Input()
@@ -47,8 +50,35 @@ export class AddTrainingComponent {
 
   constructor(
     private trainingService: TrainingService,
-    private toast: ToastController
+    private toast: ToastController,
+    private router: Router,
+    private platform: Platform
   ) {
+  }
+
+  ngOnInit() {
+    // Back button će se registrovati u ionViewDidEnter
+  }
+
+  ionViewDidEnter(): void {
+    // Registruj back button behavior kada se stranica učita
+    this.platform.ready().then(() => {
+      this.backButtonSubscription = this.platform.backButton.subscribeWithPriority(10, () => {
+        this.handleBackButton();
+      });
+    });
+  }
+
+  ngOnDestroy() {
+    // Ukloni registraciju back button-a
+    if (this.backButtonSubscription) {
+      this.backButtonSubscription.unsubscribe();
+    }
+  }
+
+  private handleBackButton() {
+    // Navigate back to trainings list instead of browser history
+    this.router.navigate(['/trainings']);
   }
 
   addGroup(): void {

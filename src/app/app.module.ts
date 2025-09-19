@@ -10,6 +10,7 @@ import { AddTrainingComponent } from './add-training/add-training.component';
 import { PlayTrainingComponent } from './play-training/play-training.component';
 import { CountdownTimerComponent } from './countdown-timer/countdown-timer.component';
 import { TimeUtilsService } from './services/time-utils.service';
+import { BackButtonService } from './services/back-button.service';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,7 @@ import { TimeUtilsService } from './services/time-utils.service';
     CountdownTimerComponent,
   ],
   imports: [BrowserModule, FormsModule, ReactiveFormsModule, IonicModule.forRoot(), AppRoutingModule],
-  providers: [TimeUtilsService],
+  providers: [TimeUtilsService, BackButtonService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
