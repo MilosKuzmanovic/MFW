@@ -18,6 +18,9 @@ export class CountdownTimerComponent implements OnInit, OnDestroy, OnChanges {
   remainingTime: number;
   private beepPlayed: Set<number> = new Set();
   private isTimerRunning: boolean = false;
+  private startTime: number = 0;
+  private pausedTime: number = 0;
+  private pauseStartTime: number = 0;
 
   ngOnInit() {
     this.initializeAudio();
@@ -63,12 +66,18 @@ export class CountdownTimerComponent implements OnInit, OnDestroy, OnChanges {
     this.remainingTime = this.durationInSeconds;
     this.beepPlayed.clear();
     this.isTimerRunning = true;
+    this.displayTime = this.formatTime(this.remainingTime);
+    this.startTime = Date.now();
+    this.pausedTime = 0;
+    this.pauseStartTime = 0;
 
-    const timer$ = timer(0, 1000);
-    this.subscription = timer$.subscribe(() => {
+    const updateTimer = () => {
       if (!this.isTimerRunning) return; // Don't count down when paused
       
-      this.remainingTime--;
+      const currentTime = Date.now();
+      const elapsed = currentTime - this.startTime - this.pausedTime;
+      const remainingMs = Math.max(0, (this.durationInSeconds * 1000) - elapsed);
+      this.remainingTime = Math.ceil(remainingMs / 1000);
       this.displayTime = this.formatTime(this.remainingTime);
 
       if (this.remainingTime <= 10 && this.remainingTime > 0) {
@@ -82,19 +91,33 @@ export class CountdownTimerComponent implements OnInit, OnDestroy, OnChanges {
         this.alertClass = '';
       }
   
-      if (this.remainingTime === 0) {
+      if (this.remainingTime <= 0) {
         this.playBeepLong();
         this.onFinish.emit(true);
-        this.subscription.unsubscribe();
+        clearInterval(intervalId);
       }
-    });
+    };
+
+    // Update immediately to show correct time
+    updateTimer();
+    
+    // Then update every 100ms for smooth countdown
+    const intervalId = setInterval(updateTimer, 100);
+
+    // Store interval ID for cleanup
+    this.subscription = new Subscription(() => clearInterval(intervalId));
   }
 
   private pauseTimer() {
     this.isTimerRunning = false;
+    this.pauseStartTime = Date.now();
   }
 
   private resumeTimer() {
+    if (this.pauseStartTime > 0) {
+      this.pausedTime += Date.now() - this.pauseStartTime;
+      this.pauseStartTime = 0;
+    }
     this.isTimerRunning = true;
   }
 
