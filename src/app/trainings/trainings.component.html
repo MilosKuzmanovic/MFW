@@ -2,13 +2,16 @@
   <ion-toolbar>
     <ion-title *ngIf="!addingTraining && !reviewing">
       <ion-icon name="pulse" class="header-pulse-icon" style="margin-right: 8px;"></ion-icon>
-      Treninzi
-      <span *ngIf="!trainings || trainings.length === 0"> - Nema dodatih treninga. Kreiraj ih!</span>
+      {{ 'trainings.title' | translate }}
+      <span *ngIf="!trainings || trainings.length === 0"> - {{ 'trainings.noTrainings' | translate }}</span>
     </ion-title>
-    <ion-title *ngIf="addingTraining">Dodavanje treninga
+    <ion-title *ngIf="addingTraining">{{ 'trainings.adding' | translate }}
     </ion-title>
-    <ion-title *ngIf="reviewing">Pregled treninga
+    <ion-title *ngIf="reviewing">{{ 'trainings.reviewing' | translate }}
     </ion-title>
+    <ion-buttons slot="end">
+      <app-language-switcher></app-language-switcher>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 <ion-content [fullscreen]="true">
@@ -26,11 +29,11 @@
       <ion-card-content (click)="editTraining(training)">
         <h2 *ngIf="training.description" style="display: flex; align-items: center;">
           <ion-icon name="document-text" style="margin-right: 6px; color: #7f8c8d;"></ion-icon>
-          <b>Opis treninga:</b> {{ training.description }}
+          <b>{{ 'training.description' | translate }}</b> {{ training.description }}
         </h2>
         <h2 *ngIf="training.totalTime" style="display: flex; align-items: center;">
           <ion-icon name="time" style="margin-right: 6px; color: #7f8c8d;"></ion-icon>
-          <b>Trajanje treninga:</b> {{ convertSeconds(training.totalTime) }}
+          <b>{{ 'training.duration' | translate }}</b> {{ convertSeconds(training.totalTime) }}
         </h2>
       </ion-card-content>
 
@@ -39,15 +42,15 @@
           <ion-button style="width: 32%; height: 80%;" color="success"
             (click)="playTraining(training)">
             <ion-icon name="play" style="margin-right: 4px;"></ion-icon>
-            Treniraj
+            {{ 'button.train' | translate }}
           </ion-button>
           <ion-button style="width: 32%; height: 80%;" color="warning" (click)="review(training)">
             <ion-icon name="eye" style="margin-right: 4px;"></ion-icon>
-            Pregled
+            {{ 'button.review' | translate }}
           </ion-button>
           <ion-button style="width: 32%; height: 80%;" color="primary" (click)="export(training)">
             <ion-icon name="download" style="margin-right: 4px;"></ion-icon>
-            Export
+            {{ 'button.export' | translate }}
           </ion-button>
         </div>
       </div>
@@ -58,33 +61,33 @@
       </ion-button>
 
       <ion-alert trigger="remove-alert-{{training.id}}" class="custom-alert"
-        header="Da li si siguran da želiš da obrišeš trening?" [buttons]="alertButtons"></ion-alert>
+        [header]="'alert.deleteTraining' | translate" [buttons]="alertButtons"></ion-alert>
     </ion-card>
 
     <div class="bottom-actions">
       <ion-button class="action-button add-button" expand="full" color="primary" (click)="addTraining()">
         <ion-icon name="add-circle" class="button-icon"></ion-icon>
-        Dodaj Trening
+        {{ 'button.addTraining' | translate }}
       </ion-button>
       
       <div class="export-import-container">
         <ion-button class="action-button export-button" color="success" (click)="exportAll()">
           <ion-icon name="download" class="button-icon"></ion-icon>
-          Export All
+          {{ 'button.exportAll' | translate }}
         </ion-button>
         
         <ion-button class="action-button import-button" color="warning" *ngIf="!isImporting" (click)="importTraining()">
           <ion-icon name="cloud-upload" class="button-icon"></ion-icon>
-          Import
+          {{ 'button.import' | translate }}
         </ion-button>
       </div>
     </div>
     
     <ion-item *ngIf="isImporting" class="import-item">
-      <ion-input [(ngModel)]="importedTraining" placeholder="Ubaci JSON" class="import-input"></ion-input>
+      <ion-input [(ngModel)]="importedTraining" [placeholder]="'placeholder.importJson' | translate" class="import-input"></ion-input>
       <ion-button class="finish-button" color="success" (click)="importTrainingFinish()">
         <ion-icon name="checkmark" class="button-icon"></ion-icon>
-        Završi
+        {{ 'button.finish' | translate }}
       </ion-button>
     </ion-item>
   </div>
@@ -95,35 +98,35 @@
 
   <div *ngIf="reviewing && selectedTrainingForReview">
     <ion-button color="danger" expand="full"
-      (click)="reviewing = false; selectedTrainingForReview = null;">Nazad</ion-button>
+      (click)="reviewing = false; selectedTrainingForReview = null;">{{ 'button.back' | translate }}</ion-button>
 
     <div style="margin-left: 10px; letter-spacing: 1px; text-align: justify;">
-      <h1 style="text-decoration: underline; text-underline-offset: 7px;">Trening</h1>
-      <div *ngIf="selectedTrainingForReview.name" style="margin-top: 5px;"><b>Naziv treninga:</b>
+      <h1 style="text-decoration: underline; text-underline-offset: 7px;">{{ 'text.training' | translate }}</h1>
+      <div *ngIf="selectedTrainingForReview.name" style="margin-top: 5px;"><b>{{ 'training.name' | translate }}</b>
         {{selectedTrainingForReview.name}}</div>
-      <div *ngIf="selectedTrainingForReview.description" style="margin-top: 5px;"><b>Opis treninga:</b>
+      <div *ngIf="selectedTrainingForReview.description" style="margin-top: 5px;"><b>{{ 'training.description' | translate }}</b>
         {{selectedTrainingForReview.description}}</div>
-      <div *ngIf="selectedTrainingForReview.breakBetweenGroups" style="margin-top: 5px;"><b>Pauza između grupa:</b>
+      <div *ngIf="selectedTrainingForReview.breakBetweenGroups" style="margin-top: 5px;"><b>{{ 'training.breakBetweenGroups' | translate }}</b>
         {{selectedTrainingForReview.breakBetweenGroups}}</div>
-      <div *ngIf="selectedTrainingForReview.breakBetweenExercises" style="margin-top: 5px;"><b>Pauza između vežbi:</b>
+      <div *ngIf="selectedTrainingForReview.breakBetweenExercises" style="margin-top: 5px;"><b>{{ 'training.breakBetweenExercises' | translate }}</b>
         {{selectedTrainingForReview.breakBetweenExercises}}</div>
     </div>
 
     <ion-card *ngFor="let group of selectedTrainingForReview.trainingGroups"
       style="color: white; background-color: rgb(55, 47, 47);" class="training-card clickable">
       <ion-card-content style="letter-spacing: 1px; text-align: justify;">
-        <h1 style="text-decoration: underline; text-underline-offset: 7px;">Grupa</h1>
-        <div><b>Naziv grupe:</b> {{ group.name }}</div>
-        <div><b>Opis grupe:</b> {{ group.description }}</div>
-        <div><b>Vreme trajanja vežbe:</b> {{ group.time }}</div>
-        <div><b>Redni broj grupe:</b> {{ group.order }}</div>
-        <div><b>Broj ponavljanja:</b> {{ group.numberOfSeries }}</div>
+        <h1 style="text-decoration: underline; text-underline-offset: 7px;">{{ 'text.group' | translate }}</h1>
+        <div><b>{{ 'group.name' | translate }}</b> {{ group.name }}</div>
+        <div><b>{{ 'group.description' | translate }}</b> {{ group.description }}</div>
+        <div><b>{{ 'group.exerciseDuration' | translate }}</b> {{ group.time }}</div>
+        <div><b>{{ 'group.order' | translate }}</b> {{ group.order }}</div>
+        <div><b>{{ 'group.numberOfSeries' | translate }}</b> {{ group.numberOfSeries }}</div>
         <div *ngFor="let exercise of group.exercises"
           style="letter-spacing: 1px; text-align: justify; margin-top: 15px; padding-left: 30px;">
-          <h1 style="text-decoration: underline; text-underline-offset: 7px;">Vežba</h1>
-          <div><b>Naziv vežbe:</b> {{ exercise.name }}</div>
-          <div><b>Opis vežbe:</b> {{ exercise.description }}</div>
-          <div><b>Redni broj vežbe:</b> {{ exercise.order }}</div>
+          <h1 style="text-decoration: underline; text-underline-offset: 7px;">{{ 'text.exercise' | translate }}</h1>
+          <div><b>{{ 'exercise.name' | translate }}</b> {{ exercise.name }}</div>
+          <div><b>{{ 'exercise.description' | translate }}</b> {{ exercise.description }}</div>
+          <div><b>{{ 'exercise.order' | translate }}</b> {{ exercise.order }}</div>
         </div>
       </ion-card-content>
     </ion-card>

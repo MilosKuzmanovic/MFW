@@ -1,33 +1,34 @@
+
 <div *ngIf="currentGroup && currentExercise">
   <div style="display: flex; justify-content: space-between;">
     <ion-button style="width: 50%; font-size: 20px; height: 5vh;" color="danger" (click)="moveBack()">
-      <b>NAZAD</b>
+      <b>{{ 'play.back' | translate }}</b>
     </ion-button>
     <ion-button style="width: 50%; font-size: 20px; height: 5vh;" color="success" (click)="moveNext()">
-      <b>NAPRED</b>
+      <b>{{ 'play.next' | translate }}</b>
     </ion-button>
   </div>
   <div *ngIf="isBreak && !isFinishedTraining">
     <div style="position: absolute; margin-left: 50%; transform: translateX(-50%);">
-      <h1 style="font-size: 4rem;"><b>PAUZA</b></h1>
+      <h1 style="font-size: 4rem;"><b>{{ 'play.break' | translate }}</b></h1>
     </div>
     <app-countdown-timer #timer [durationInSeconds]="+currentTime" [isPaused]="isPaused" (onFinish)="moveNext()"></app-countdown-timer>
     <div style="display: flex; flex-direction: column; text-align: center;">
-      <h2 style="overflow: hidden; max-height: 120px; font-size: 2rem; margin-top: 40px;"><b style="color: rgb(21, 218, 60);">Sledi:</b>
+      <h2 style="overflow: hidden; max-height: 120px; font-size: 2rem; margin-top: 40px;"><b style="color: rgb(21, 218, 60);">{{ 'play.nextExercise' | translate }}</b>
         {{nextExercise?.name}}</h2>
     </div>
     <div style="display: flex; flex-direction: column; text-align: center; border-top: 1px solid red;">
-      <h2 style="overflow: hidden; max-height: 20px; padding: 0; font-size: 1.2rem; margin-bottom: 0; margin-top: 5px;"><b style="color: rgb(220, 255, 227);">Završeno</b></h2>
+      <h2 style="overflow: hidden; max-height: 20px; padding: 0; font-size: 1.2rem; margin-bottom: 0; margin-top: 5px;"><b style="color: rgb(21, 218, 60);">{{ 'text.completed' | translate }}</b></h2>
       <div style="margin-left: 50%; transform: translateX(-50%); width: 100%; display: flex; align-items: center; justify-content: center;">
         <div style="display: flex; text-align: center;">
-          <h3 style="overflow: hidden; margin: 0; margin-top: 10px; max-height: 60px; font-size: .8rem; flex-direction: column; display: flex; padding-left: 5px; padding-right: 25px; padding-top: 7px;"><b style="color: rgb(21, 218, 60);">Grupa</b>
+          <h3 style="overflow: hidden; margin: 0; margin-top: 10px; max-height: 60px; font-size: .8rem; flex-direction: column; display: flex; padding-left: 5px; padding-right: 25px; padding-top: 7px;"><b style="color: rgb(21, 218, 60);">{{ 'play.group' | translate }}</b>
             <span>{{currentGroup.name}}</span>
             <span>({{groupIndex + 1}}/{{training.trainingGroups.length}})</span></h3>
-          <h3 style="overflow: hidden; margin: 0; margin-top: 10px; border-left: 1px solid white; max-height: 60px; font-size: .8rem; flex-direction: column; display: flex; padding-left: 25px; padding-right: 25px; padding-top: 5px;"><b style="color: rgb(21, 218, 60);">Vežba</b>
+          <h3 style="overflow: hidden; margin: 0; margin-top: 10px; border-left: 1px solid white; max-height: 60px; font-size: .8rem; flex-direction: column; display: flex; padding-left: 25px; padding-right: 25px; padding-top: 5px;"><b style="color: rgb(21, 218, 60);">{{ 'play.exercise' | translate }}</b>
             <span>{{currentExercise.name}}</span>
             <span>({{exerciseIndex + 1}}/{{currentGroup.exercises.length}})</span></h3>
-          <h3 style="overflow: hidden; margin: 0; margin-top: 10px; border-left: 1px solid white; max-height: 60px; font-size: .8rem; flex-direction: column; display: flex; padding-left: 25px; padding-right: 5px; padding-top: 5px;"><b style="color: rgb(21, 218, 60);">Serija</b>
-            <span>Serija {{seriesIndex}}</span>
+          <h3 style="overflow: hidden; margin: 0; margin-top: 10px; border-left: 1px solid white; max-height: 60px; font-size: .8rem; flex-direction: column; display: flex; padding-left: 25px; padding-right: 5px; padding-top: 5px;"><b style="color: rgb(21, 218, 60);">{{ 'play.series' | translate }}</b>
+            <span>{{ 'play.series' | translate }} {{seriesIndex}}</span>
             <span>({{seriesIndex}}/{{currentGroup.numberOfSeries}})</span></h3>
         </div>
       </div>
@@ -37,13 +38,13 @@
   <div *ngIf="!isBreak && !isFinishedTraining">
     <div style="margin-left: 50%; transform: translate(-50%); width: 100vw;">
       <div style="display: flex; flex-direction: column; text-align: center;">
-        <h3 style="overflow: hidden; max-height: 38px; font-size: 1.3rem;"><b style="color: rgb(21, 218, 60);">Grupa:</b>
+        <h3 style="overflow: hidden; max-height: 38px; font-size: 1.3rem;"><b style="color: rgb(21, 218, 60);">{{ 'play.group' | translate }}:</b>
           {{currentGroup.name}} ({{groupIndex +
           1}}/{{training.trainingGroups.length}})</h3>
-        <h2 style="overflow: hidden; max-height: 120px; font-size: 1.3rem;"><b style="color: rgb(21, 218, 60);">Vežba:</b>
+        <h2 style="overflow: hidden; max-height: 120px; font-size: 1.3rem;"><b style="color: rgb(21, 218, 60);">{{ 'play.exercise' | translate }}:</b>
           {{currentExercise.name}}
           ({{exerciseIndex + 1}}/{{currentGroup.exercises.length}})</h2>
-        <h2 style="overflow: hidden; max-height: 40px; font-size: 1.3rem;"><b style="color: rgb(21, 218, 60);">Serija:</b>
+        <h2 style="overflow: hidden; max-height: 40px; font-size: 1.3rem;"><b style="color: rgb(21, 218, 60);">{{ 'play.series' | translate }}:</b>
           {{seriesIndex}}/{{currentGroup.numberOfSeries}}</h2>
       </div>
     </div>
@@ -52,7 +53,7 @@
 </div>
   <div *ngIf="isFinishedTraining">
     <div style="position: absolute; margin-left: 50%; margin-top: 25%; transform: translateX(-50%);">
-      <h1><b>KRAJ</b></h1>
+      <h1><b>{{ 'play.end' | translate }}</b></h1>
     </div>
   </div>
 

@@ -1,21 +1,30 @@
-<ion-content *ngIf="trainingDetails">
-  <ion-alert trigger="back-alert" header="Da li si siguran da želiš da odustaneš?" [buttons]="alertButtons"></ion-alert>
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ 'trainings.adding' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <app-language-switcher></app-language-switcher>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
 
-  <ion-button id="back-alert" color="danger" expand="full">Odustani</ion-button>
+<ion-content *ngIf="trainingDetails">
+  <ion-alert trigger="back-alert" [header]="'alert.cancelChanges' | translate" [buttons]="alertButtons"></ion-alert>
+
+  <ion-button id="back-alert" color="danger" expand="full">{{ 'button.cancel' | translate }}</ion-button>
 
   <ion-card style="color: white; background-color: rgb(55, 47, 47);">
     <ion-card-content>
-      <h1><b>Trening {{ trainingDetails.name }}</b></h1>
+      <h1><b>{{ 'text.training' | translate }} {{ trainingDetails.name }}</b></h1>
       <ion-input fill="outline" style="margin-top: 15px;" [(ngModel)]="trainingDetails.name"
-        placeholder="Naziv treninga"></ion-input>
+        [placeholder]="'placeholder.trainingName' | translate"></ion-input>
       <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="trainingDetails.description"
-        placeholder="Opis treninga"></ion-input>
+        [placeholder]="'placeholder.trainingDescription' | translate"></ion-input>
       <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="trainingDetails.breakBetweenGroups"
-        placeholder="Trajanje pauze između grupa"></ion-input>
+        [placeholder]="'placeholder.breakBetweenGroups' | translate"></ion-input>
       <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="trainingDetails.breakBetweenSeries"
-        placeholder="Trajanje pauze između serija"></ion-input>
+        [placeholder]="'placeholder.breakBetweenSeries' | translate"></ion-input>
       <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="trainingDetails.breakBetweenExercises"
-        placeholder="Trajanje pauza između vežbi"></ion-input>
+        [placeholder]="'placeholder.breakBetweenExercises' | translate"></ion-input>
 
       <ion-card color="light" *ngFor="let group of trainingDetails.trainingGroups">
         <ion-card-content>
@@ -25,17 +34,17 @@
             </ion-button>
           </div>
 
-          <h1><b>Grupa {{ group.name }}</b></h1>
+          <h1><b>{{ 'text.group' | translate }} {{ group.name }}</b></h1>
           <ion-input fill="outline" style="margin-top: 15px;" [(ngModel)]="group.name"
-            placeholder="Naziv grupe"></ion-input>
+            [placeholder]="'placeholder.groupName' | translate"></ion-input>
           <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="group.description"
-            placeholder="Opis grupe"></ion-input>
+            [placeholder]="'placeholder.groupDescription' | translate"></ion-input>
           <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="group.time"
-            placeholder="Vreme trajanja vežbe"></ion-input>
+            [placeholder]="'placeholder.exerciseDuration' | translate"></ion-input>
           <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="group.numberOfSeries"
-            placeholder="Broj ponavljanja"></ion-input>
+            [placeholder]="'placeholder.numberOfSeries' | translate"></ion-input>
           <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="group.order"
-            placeholder="Redni broj grupe"></ion-input>
+            [placeholder]="'placeholder.groupOrder' | translate"></ion-input>
 
           <ion-card color="warning" *ngFor="let exercise of group.exercises">
             <ion-card-content>
@@ -45,25 +54,25 @@
                 </ion-button>
               </div>
 
-              <h1><b>Vežba {{ exercise.name }}</b></h1>
+              <h1><b>{{ 'text.exercise' | translate }} {{ exercise.name }}</b></h1>
               <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="exercise.name"
-                placeholder="Naziv vežbe"></ion-input>
+                [placeholder]="'placeholder.exerciseName' | translate"></ion-input>
               <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="exercise.description"
-                placeholder="Opis vežbe"></ion-input>
+                [placeholder]="'placeholder.exerciseDescription' | translate"></ion-input>
               <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="exercise.order"
-                placeholder="Redni broj većbe"></ion-input>
+                [placeholder]="'placeholder.exerciseOrder' | translate"></ion-input>
               <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="exercise.time"
-                [value]="group.time" placeholder="Vreme trajanja vežbe"></ion-input>
+                [value]="group.time" [placeholder]="'placeholder.exerciseDuration' | translate"></ion-input>
             </ion-card-content>
           </ion-card>
 
-          <ion-button expand="full" color="warning" (click)="addExercise(group)">Dodaj vežbu</ion-button>
+          <ion-button expand="full" color="warning" (click)="addExercise(group)">{{ 'button.addExercise' | translate }}</ion-button>
         </ion-card-content>
       </ion-card>
 
-      <ion-button color="light" expand="full" (click)="addGroup()">Dodaj grupu</ion-button>
+      <ion-button color="light" expand="full" (click)="addGroup()">{{ 'button.addGroup' | translate }}</ion-button>
     </ion-card-content>
   </ion-card>
 
-  <ion-button expand="full" (click)="saveTraining()">Sačuvaj</ion-button>
+  <ion-button expand="full" (click)="saveTraining()">{{ 'button.save' | translate }}</ion-button>
 </ion-content>
