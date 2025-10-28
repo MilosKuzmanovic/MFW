@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { TrainingService } from '../services/training.service';
 import { TimeUtilsService } from '../services/time-utils.service';
 import { Training } from '../models/Training';
+import { TrainingGroup } from '../models/TrainingGroup';
+import { Exercise } from '../models/Exercise';
 import { GuidGenerator } from '../services/guid-generator';
 import { ToastController, Platform } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -19,6 +21,7 @@ export class TrainingsComponent implements OnInit, OnDestroy {
   trainings: Training[] = [];
   selectedTraining: Training | null = null;
   addingTraining: boolean = false;
+  isEditingTraining: boolean = false;
   reviewing: boolean = false;
   selectedTrainingForRemoval: Training | null = null;
   selectedTrainingForReview: Training | null = null;
@@ -84,7 +87,22 @@ export class TrainingsComponent implements OnInit, OnDestroy {
 
   editTraining(training: Training): void {
     this.addingTraining = true;
-    this.selectedTraining = training;
+    this.isEditingTraining = true;
+    // Create a deep copy of the training to avoid modifying the original
+    const trainingData = JSON.parse(JSON.stringify(training));
+    
+    // Properly reconstruct nested objects as class instances
+    if (trainingData.trainingGroups) {
+      trainingData.trainingGroups = trainingData.trainingGroups.map((group: any) => {
+        const groupData = { ...group };
+        if (groupData.exercises) {
+          groupData.exercises = groupData.exercises.map((exercise: any) => new Exercise(exercise));
+        }
+        return new TrainingGroup(groupData);
+      });
+    }
+    
+    this.selectedTraining = new Training(trainingData);
   }
 
   review(training: Training) {
@@ -161,7 +179,7 @@ export class TrainingsComponent implements OnInit, OnDestroy {
 
   addTraining(): void {
     this.selectedTraining = new Training({} as Training);
-
+    this.isEditingTraining = false;
     this.addingTraining = true;
   }
 
@@ -188,6 +206,8 @@ export class TrainingsComponent implements OnInit, OnDestroy {
 
   async onFinish() {
     this.addingTraining = false;
+    this.isEditingTraining = false;
+    this.selectedTraining = null;
     this.loadTrainings();
 
     const toast = await this.toast.create({

@@ -92,9 +92,9 @@
     </ion-item>
   </div>
 
-  <app-add-training [hidden]="!addingTraining || reviewing" [isEdit]="!!selectedTraining"
+  <app-add-training [hidden]="!addingTraining || reviewing" [isEdit]="isEditingTraining"
     [trainingDetails]="selectedTraining!" (trainingSaved)="onFinish()"
-    (getBack)="this.addingTraining = false"></app-add-training>
+    (getBack)="this.addingTraining = false; this.isEditingTraining = false; this.selectedTraining = null;"></app-add-training>
 
   <div *ngIf="reviewing && selectedTrainingForReview">
     <ion-button color="danger" expand="full"
