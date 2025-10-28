@@ -12,17 +12,6 @@
 
   <ion-button id="back-alert" color="danger" expand="full">{{ 'button.cancel' | translate }}</ion-button>
 
-  <!-- Validation errors summary -->
-  <ion-card *ngIf="validationErrors && Object.keys(validationErrors).length > 0" color="danger" style="margin: 10px;">
-    <ion-card-content>
-      <ion-icon name="alert-circle" style="vertical-align: middle; margin-right: 8px;"></ion-icon>
-      <strong>Greške:</strong>
-      <ul style="margin: 10px 0; padding-left: 20px;">
-        <li *ngFor="let error of Object.values(validationErrors)">{{ error }}</li>
-      </ul>
-    </ion-card-content>
-  </ion-card>
-
   <ion-card style="color: white; background-color: rgb(55, 47, 47);">
     <ion-card-content>
       <h1><b>{{ 'text.training' | translate }} {{ trainingDetails.name }}</b></h1>

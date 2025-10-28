@@ -25,7 +25,6 @@ export class AddTrainingComponent implements OnInit, OnDestroy {
   private _trainingDetails: Training;
   public validationErrors: { [key: string]: string } = {};
   public isSubmitting: boolean = false;
-  public Object = Object; // Make Object available in template
 
   @Input()
   set trainingDetails(training: Training) {
@@ -135,7 +134,10 @@ export class AddTrainingComponent implements OnInit, OnDestroy {
       console.log('Validation errors:', validationResult.errors);
       this.validationErrors = validationResult.errors;
       this.isSubmitting = false;
-      await this.showToast('Popuni sva obavezna polja!', 'danger');
+      
+      // Show all errors in toast
+      const errorMessages = Object.values(validationResult.errors).join('\n');
+      await this.showToast(errorMessages, 'danger');
       return;
     }
 
@@ -244,7 +246,7 @@ export class AddTrainingComponent implements OnInit, OnDestroy {
   private async showToast(message: string, color: string = 'success'): Promise<void> {
     const toast = await this.toast.create({
       message,
-      duration: APP_CONSTANTS.TIMING.TOAST_DURATION,
+      duration: color === 'danger' ? 4000 : APP_CONSTANTS.TIMING.TOAST_DURATION, // Longer duration for errors
       position: APP_CONSTANTS.TIMING.TOAST_POSITION,
       color
     });
