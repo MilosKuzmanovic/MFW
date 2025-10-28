@@ -25,6 +25,7 @@ export class AddTrainingComponent implements OnInit, OnDestroy {
   private _trainingDetails: Training;
   public validationErrors: { [key: string]: string } = {};
   public isSubmitting: boolean = false;
+  public Object = Object; // Make Object available in template
 
   @Input()
   set trainingDetails(training: Training) {
@@ -123,23 +124,31 @@ export class AddTrainingComponent implements OnInit, OnDestroy {
   }
 
   async saveTraining(): Promise<void> {
+    console.log('saveTraining called');
     this.isSubmitting = true;
     this.validationErrors = {};
 
     const validationResult = this.validateForm();
+    console.log('Validation result:', validationResult);
+    
     if (!validationResult.isValid) {
+      console.log('Validation errors:', validationResult.errors);
       this.validationErrors = validationResult.errors;
       this.isSubmitting = false;
+      await this.showToast('Popuni sva obavezna polja!', 'danger');
       return;
     }
 
     try {
+      console.log('Calculating total time and saving...');
       this.trainingDetails.calculateTotalTime();
       
       const success = this.isEdit 
         ? this.trainingService.editTraining(this.trainingDetails)
         : this.trainingService.addTraining(this.trainingDetails);
 
+      console.log('Save result:', success);
+      
       if (success) {
         await this.showToast(
           this.isEdit 
@@ -166,12 +175,12 @@ export class AddTrainingComponent implements OnInit, OnDestroy {
       errors['trainingName'] = APP_CONSTANTS.MESSAGES.ERROR.REQUIRED_FIELD;
     }
 
-    // Validate breaks
-    if (!this.trainingDetails.breakBetweenGroups?.trim()) {
+    // Validate breaks (convert to string first since they can be numbers)
+    if (!String(this.trainingDetails.breakBetweenGroups || '').trim()) {
       errors['breakBetweenGroups'] = APP_CONSTANTS.MESSAGES.ERROR.REQUIRED_FIELD;
     }
 
-    if (!this.trainingDetails.breakBetweenExercises?.trim()) {
+    if (!String(this.trainingDetails.breakBetweenExercises || '').trim()) {
       errors['breakBetweenExercises'] = APP_CONSTANTS.MESSAGES.ERROR.REQUIRED_FIELD;
     }
 
@@ -184,11 +193,11 @@ export class AddTrainingComponent implements OnInit, OnDestroy {
           errors[`groupName_${groupIndex}`] = 'Popuni naziv za grupe treninga!';
         }
 
-        if (!group.numberOfSeries?.trim()) {
+        if (!String(group.numberOfSeries || '').trim()) {
           errors[`groupSeries_${groupIndex}`] = 'Popuni broj ponavljanja za grupe treninga!';
         }
 
-        if (!group.time?.trim()) {
+        if (!String(group.time || '').trim()) {
           errors[`groupTime_${groupIndex}`] = 'Popuni vreme za grupe treninga!';
         }
 

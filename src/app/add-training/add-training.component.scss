@@ -239,3 +239,70 @@
     gap: 8px;
   }
 }
+
+// Custom input styling - label always in border with split background
+.custom-input-item {
+  position: relative;
+  
+  ion-label {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    z-index: 10;
+    padding: 0 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #999 !important;
+    pointer-events: none;
+    
+    // Split background: top half matches parent, bottom half matches input
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      transparent 50%,
+      white 50%,
+      white 100%
+    ) !important;
+    
+    // White background for text readability
+    box-shadow: 0 0 0 2px white;
+  }
+  
+  ion-input {
+    --padding-top: 16px;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --padding-bottom: 12px;
+  }
+}
+
+// For light cards
+ion-card[color="light"] .custom-input-item ion-label {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 50%,
+    #f4f5f8 50%,
+    #f4f5f8 100%
+  ) !important;
+  box-shadow: 0 0 0 2px #f4f5f8;
+}
+
+// For warning cards
+ion-card[color="warning"] .custom-input-item ion-label {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 50%,
+    #ffc409 50%,
+    #ffc409 100%
+  ) !important;
+  box-shadow: 0 0 0 2px #ffc409;
+}
+
+// For main dark card
+ion-card:not([color]) .custom-input-item ion-label {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: black !important;
+}

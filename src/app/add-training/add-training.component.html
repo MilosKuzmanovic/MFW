@@ -12,19 +12,45 @@
 
   <ion-button id="back-alert" color="danger" expand="full">{{ 'button.cancel' | translate }}</ion-button>
 
+  <!-- Validation errors summary -->
+  <ion-card *ngIf="validationErrors && Object.keys(validationErrors).length > 0" color="danger" style="margin: 10px;">
+    <ion-card-content>
+      <ion-icon name="alert-circle" style="vertical-align: middle; margin-right: 8px;"></ion-icon>
+      <strong>Greške:</strong>
+      <ul style="margin: 10px 0; padding-left: 20px;">
+        <li *ngFor="let error of Object.values(validationErrors)">{{ error }}</li>
+      </ul>
+    </ion-card-content>
+  </ion-card>
+
   <ion-card style="color: white; background-color: rgb(55, 47, 47);">
     <ion-card-content>
       <h1><b>{{ 'text.training' | translate }} {{ trainingDetails.name }}</b></h1>
-      <ion-input fill="outline" style="margin-top: 15px;" [(ngModel)]="trainingDetails.name"
-        [placeholder]="'placeholder.trainingName' | translate"></ion-input>
-      <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="trainingDetails.description"
-        [placeholder]="'placeholder.trainingDescription' | translate"></ion-input>
-      <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="trainingDetails.breakBetweenGroups"
-        [placeholder]="'placeholder.breakBetweenGroups' | translate"></ion-input>
-      <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="trainingDetails.breakBetweenSeries"
-        [placeholder]="'placeholder.breakBetweenSeries' | translate"></ion-input>
-      <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="trainingDetails.breakBetweenExercises"
-        [placeholder]="'placeholder.breakBetweenExercises' | translate"></ion-input>
+      
+      <ion-item fill="outline" class="custom-input-item" style="margin-top: 15px; margin-bottom: 5px;">
+        <ion-label>{{ 'training.name' | translate }}</ion-label>
+        <ion-input [(ngModel)]="trainingDetails.name"></ion-input>
+      </ion-item>
+
+      <ion-item fill="outline" class="custom-input-item" style="margin-bottom: 5px;">
+        <ion-label>{{ 'training.description' | translate }}</ion-label>
+        <ion-input [(ngModel)]="trainingDetails.description"></ion-input>
+      </ion-item>
+
+      <ion-item fill="outline" class="custom-input-item" style="margin-bottom: 5px;">
+        <ion-label>{{ 'training.breakBetweenGroups' | translate }} (s)</ion-label>
+        <ion-input type="number" [(ngModel)]="trainingDetails.breakBetweenGroups"></ion-input>
+      </ion-item>
+
+      <ion-item fill="outline" class="custom-input-item" style="margin-bottom: 5px;">
+        <ion-label>{{ 'training.breakBetweenSeries' | translate }} (s)</ion-label>
+        <ion-input type="number" [(ngModel)]="trainingDetails.breakBetweenSeries"></ion-input>
+      </ion-item>
+
+      <ion-item fill="outline" class="custom-input-item" style="margin-bottom: 5px;">
+        <ion-label>{{ 'training.breakBetweenExercises' | translate }} (s)</ion-label>
+        <ion-input type="number" [(ngModel)]="trainingDetails.breakBetweenExercises"></ion-input>
+      </ion-item>
 
       <ion-card color="light" *ngFor="let group of trainingDetails.trainingGroups">
         <ion-card-content>
@@ -35,16 +61,31 @@
           </div>
 
           <h1><b>{{ 'text.group' | translate }} {{ group.name }}</b></h1>
-          <ion-input fill="outline" style="margin-top: 15px;" [(ngModel)]="group.name"
-            [placeholder]="'placeholder.groupName' | translate"></ion-input>
-          <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="group.description"
-            [placeholder]="'placeholder.groupDescription' | translate"></ion-input>
-          <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="group.time"
-            [placeholder]="'placeholder.exerciseDuration' | translate"></ion-input>
-          <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="group.numberOfSeries"
-            [placeholder]="'placeholder.numberOfSeries' | translate"></ion-input>
-          <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="group.order"
-            [placeholder]="'placeholder.groupOrder' | translate"></ion-input>
+          
+          <ion-item fill="outline" class="custom-input-item" style="margin-top: 15px; margin-bottom: 5px;">
+            <ion-label>{{ 'group.name' | translate }}</ion-label>
+            <ion-input [(ngModel)]="group.name"></ion-input>
+          </ion-item>
+
+          <ion-item fill="outline" class="custom-input-item" style="margin-bottom: 5px;">
+            <ion-label>{{ 'group.description' | translate }}</ion-label>
+            <ion-input [(ngModel)]="group.description"></ion-input>
+          </ion-item>
+
+          <ion-item fill="outline" class="custom-input-item" style="margin-bottom: 5px;">
+            <ion-label>{{ 'group.exerciseDuration' | translate }} (s)</ion-label>
+            <ion-input type="number" [(ngModel)]="group.time"></ion-input>
+          </ion-item>
+
+          <ion-item fill="outline" class="custom-input-item" style="margin-bottom: 5px;">
+            <ion-label>{{ 'group.numberOfSeries' | translate }}</ion-label>
+            <ion-input type="number" [(ngModel)]="group.numberOfSeries"></ion-input>
+          </ion-item>
+
+          <ion-item fill="outline" class="custom-input-item" style="margin-bottom: 5px;">
+            <ion-label>{{ 'group.order' | translate }}</ion-label>
+            <ion-input type="number" [(ngModel)]="group.order"></ion-input>
+          </ion-item>
 
           <ion-card color="warning" *ngFor="let exercise of group.exercises">
             <ion-card-content>
@@ -55,14 +96,27 @@
               </div>
 
               <h1><b>{{ 'text.exercise' | translate }} {{ exercise.name }}</b></h1>
-              <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="exercise.name"
-                [placeholder]="'placeholder.exerciseName' | translate"></ion-input>
-              <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="exercise.description"
-                [placeholder]="'placeholder.exerciseDescription' | translate"></ion-input>
-              <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="exercise.order"
-                [placeholder]="'placeholder.exerciseOrder' | translate"></ion-input>
-              <ion-input fill="outline" style="margin-top: 5px;" [(ngModel)]="exercise.time"
-                [value]="group.time" [placeholder]="'placeholder.exerciseDuration' | translate"></ion-input>
+              
+              <ion-item fill="outline" class="custom-input-item" style="margin-top: 5px; margin-bottom: 5px;">
+                <ion-label>{{ 'exercise.name' | translate }}</ion-label>
+                <ion-input [(ngModel)]="exercise.name"></ion-input>
+              </ion-item>
+
+              <ion-item fill="outline" class="custom-input-item" style="margin-bottom: 5px;">
+                <ion-label>{{ 'exercise.description' | translate }}</ion-label>
+                <ion-input [(ngModel)]="exercise.description"></ion-input>
+              </ion-item>
+
+              <ion-item fill="outline" class="custom-input-item" style="margin-bottom: 5px;">
+                <ion-label>{{ 'exercise.order' | translate }}</ion-label>
+                <ion-input type="number" [(ngModel)]="exercise.order"></ion-input>
+              </ion-item>
+
+              <ion-item fill="outline" class="custom-input-item" style="margin-bottom: 5px;">
+                <ion-label>{{ 'exercise.duration' | translate }} (s)</ion-label>
+                <ion-input type="number" [(ngModel)]="exercise.time"
+                  [value]="group.time"></ion-input>
+              </ion-item>
             </ion-card-content>
           </ion-card>
 
